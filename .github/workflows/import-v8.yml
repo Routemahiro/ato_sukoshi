@@ -2,7 +2,7 @@ name: Import approved v8 once
 on:
   push:
     branches: [main]
-    paths: ['.github/workflows/import-v8.yml']
+    paths: ['.import-source.txt']
 permissions:
   contents: write
 jobs:
@@ -10,34 +10,30 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
-      - name: Import, verify and commit the approved archive
+      - name: Import and validate v8
         env:
           GH_TOKEN: ${{ github.token }}
-          TARGET_REPOSITORY: ${{ github.repository }}
         run: |
           python3 - <<'PY'
           import os, subprocess, base64
-          source = 'https://sdmntprcentralus.oaiusercontent.com/files/00000000-1748-81f5-9f5a-2564bae7e9b9/raw?se=2026-09-16T07%3A41%3A45Z&sp=r&sv=2026-02-06&sr=b&scid=337a075e-e401-52cc-9cd0-62cfd2758eda&skoid=fe2e0858-51c5-47e9-acb7-46ebb9a0f396&sktid=a48cca56-e6da-484e-a814-9c849652bcb3&skt=2026-09-16T06%3A13%3A42Z&ske=2026-09-17T06%3A13%3A42Z&sks=b&skv=2026-02-06&sig=650YC4mpXJPIzfnKSekwzMCq9%2B%2ByanUUUBnoaGVdjqo%3D'
-          print('::add-mask::' + source, flush=True)
-          repo = os.environ['TARGET_REPOSITORY']
-          if repo != 'Routemahiro/ato_sukoshi':
-              raise RuntimeError('Unexpected repository')
-          subprocess.run(['git', 'clone', '--depth=1', '--branch=main', 'https://github.com/' + repo + '.git', 'project'], check=True)
+          from pathlib import Path
+          subprocess.run(['git','clone','--depth=1','--branch=main','https://github.com/Routemahiro/ato_sukoshi.git','project'],check=True)
           os.chdir('project')
-          env = dict(os.environ, SOURCE_URL=source)
-          subprocess.run(['python3', 'scripts/import-confirmed-v8.py'], env=env, check=True)
-          subprocess.run(['git', 'config', 'user.name', 'github-actions[bot]'], check=True)
-          subprocess.run(['git', 'config', 'user.email', '41898282+github-actions[bot]@users.noreply.github.com'], check=True)
-          subprocess.run(['git', 'add', 'index.html', 'src', 'scripts', 'tests', 'docs', 'validation', 'README.md', 'AGENTS.md', 'package.json', '.gitignore'], check=True)
-          if subprocess.run(['git', 'diff', '--cached', '--quiet']).returncode == 0:
-              print('Approved v8 is already imported.')
-          else:
-              subprocess.run(['git', 'commit', '-m', 'Import confirmed v8 unchanged, with editable sources and validation'], check=True)
-              auth = base64.b64encode(('x-access-token:' + os.environ['GH_TOKEN']).encode()).decode()
-              print('::add-mask::' + auth, flush=True)
-              result = subprocess.run(['git', '-c', 'http.https://github.com/.extraheader=AUTHORIZATION: basic ' + auth, 'push', 'origin', 'HEAD:main'], capture_output=True, text=True)
+          if not Path('.import-source.txt').exists():
+              raise SystemExit(0)
+          source=Path('.import-source.txt').read_text().strip()
+          print('::add-mask::'+source,flush=True)
+          subprocess.run(['python3','scripts/import-confirmed-v8.py'],env=dict(os.environ,SOURCE_URL=source),check=True)
+          subprocess.run(['git','config','user.name','github-actions[bot]'],check=True)
+          subprocess.run(['git','config','user.email','41898282+github-actions[bot]@users.noreply.github.com'],check=True)
+          subprocess.run(['git','add','index.html','src','scripts','tests','docs','validation','README.md','AGENTS.md','package.json','.gitignore'],check=True)
+          if subprocess.run(['git','diff','--cached','--quiet']).returncode:
+              subprocess.run(['git','commit','-m','Import confirmed v8 unchanged, with editable sources and validation'],check=True)
+              auth=base64.b64encode(('x-access-token:'+os.environ['GH_TOKEN']).encode()).decode()
+              print('::add-mask::'+auth,flush=True)
+              result=subprocess.run(['git','-c','http.https://github.com/.extraheader=AUTHORIZATION: basic '+auth,'push','origin','HEAD:main'],capture_output=True,text=True)
               if result.returncode:
-                  print(result.stderr.replace(auth, '[redacted]').replace(os.environ['GH_TOKEN'], '[redacted]'))
-                  raise RuntimeError('Push failed; no force push was attempted.')
-              print('Approved v8 committed and pushed to main.')
+                  print(result.stderr.replace(auth,'[redacted]').replace(os.environ['GH_TOKEN'],'[redacted]'))
+                  raise RuntimeError('Push failed; no force push attempted.')
+          print('Approved v8 imported and verified.')
           PY
