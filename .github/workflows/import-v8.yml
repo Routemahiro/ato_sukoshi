@@ -23,7 +23,7 @@ jobs:
               raise SystemExit(0)
           source=Path('.import-source.txt').read_text().strip()
           print('::add-mask::'+source,flush=True)
-          subprocess.run(['python3','scripts/import-confirmed-v8.py'],env=dict(os.environ,SOURCE_URL=source),check=True)
+          subprocess.run(['python3','scripts/download-import.py'],env=dict(os.environ,SOURCE_URL=source),check=True)
           subprocess.run(['git','config','user.name','github-actions[bot]'],check=True)
           subprocess.run(['git','config','user.email','41898282+github-actions[bot]@users.noreply.github.com'],check=True)
           subprocess.run(['git','add','index.html','src','scripts','tests','docs','validation','README.md','AGENTS.md','package.json','.gitignore'],check=True)
