@@ -1,0 +1,13 @@
+{
+  "name": "ato-sukoshi",
+  "version": "8.0.0",
+  "private": true,
+  "description": "子どもの切り替えを助ける、りすとどんぐりのWebタイマー",
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "check": "node scripts/build.mjs --check",
+    "test": "node --test tests/*.test.cjs",
+    "dev": "python3 -m http.server 8080 --bind 127.0.0.1",
+    "export:assets": "node scripts/export-assets.mjs"
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "version": "8.0.0",
+  "source_html_sha256": "e7fb6e864451254b065fd80d9885de97cd277628b98304233d15e53a67842403",
+  "source_archive_sha256": "c7893ccb190d8a023d15a84f0a8b61a690dab26cee4e6df0b04aee8aea69c401",
+  "html_bytes": 780712,
+  "html_unchanged": true,
+  "animation_changed": false,
+  "source_hashes": {
+    "src/app.js": "2919c6f76dcfdf523dbd50046710b399d6d294dffd5193de57a4552cc3b97211",
+    "src/assets.js": "5e5a75a369c8273fecad20c13aa394dd3869228da9e9fc29dcd574d56b66b00b",
+    "src/index.template.html": "5fbd4d577eae1036ef4fbf9767d31406a6db19e7b828c2703030fd1bb7fbf3ac",
+    "src/snack-core.js": "302e8049e6ba5987a3963991fe9db5f639b7054cafef042a41914336db0190b7",
+    "src/styles.css": "219adc759bf97e596f1ca49801e1f3544be2afd9d1c5385c440cae4d1afb84df",
+    "src/timer-core.js": "e9686177e058525beb431df9a748095e67784db493b3320e0a10eccf6e2865bd"
+  }
+}

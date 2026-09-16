@@ -1,0 +1,425 @@
+{
+  "method": "Chromium 144. HTML loaded using set_content; real countdown clock. Restoration/preference tests use in-memory storage. Blocked-storage smoke test uses no substitute. Checks split into bounded runs because of environment process time limits.",
+  "checks": [
+    {
+      "name": "Setup starts idle",
+      "passed": true
+    },
+    {
+      "name": "Completion controls absent on preparation screen",
+      "passed": true
+    },
+    {
+      "name": "Original four duration buttons preserved",
+      "passed": true
+    },
+    {
+      "name": "Nine preset-checkbox choices retained",
+      "passed": true
+    },
+    {
+      "name": "Current-activity selector still removed",
+      "passed": true
+    },
+    {
+      "name": "15 minute display preference adds only a candidate",
+      "passed": true
+    },
+    {
+      "name": "Real countdown starts",
+      "passed": true
+    },
+    {
+      "name": "Running still uses long-press menu",
+      "passed": true
+    },
+    {
+      "name": "Direct actions not available while running",
+      "passed": true
+    },
+    {
+      "name": "Ordinary click does not open running menu",
+      "passed": true
+    },
+    {
+      "name": "After real countdown direct restart visible",
+      "passed": true
+    },
+    {
+      "name": "After real countdown direct reset visible",
+      "passed": true
+    },
+    {
+      "name": "After real countdown menu trigger hidden",
+      "passed": true
+    },
+    {
+      "name": "After real countdown no modal open",
+      "passed": true
+    },
+    {
+      "name": "After real countdown one visible restart action",
+      "passed": true
+    },
+    {
+      "name": "After real countdown no stale device status",
+      "passed": true
+    },
+    {
+      "name": "Focus moves to visible next-action button",
+      "passed": true
+    },
+    {
+      "name": "Correct next scene at finish",
+      "passed": true
+    },
+    {
+      "name": "Next scene decoded",
+      "passed": true
+    },
+    {
+      "name": "Restart directly starts same 4 seconds",
+      "passed": true
+    },
+    {
+      "name": "Restart retains next action",
+      "passed": true
+    },
+    {
+      "name": "Restart hides direct buttons and restores long press",
+      "passed": true
+    },
+    {
+      "name": "Next action opens acknowledged screen",
+      "passed": true
+    },
+    {
+      "name": "Together screen direct restart visible",
+      "passed": true
+    },
+    {
+      "name": "Together screen direct reset visible",
+      "passed": true
+    },
+    {
+      "name": "Together screen menu trigger hidden",
+      "passed": true
+    },
+    {
+      "name": "Together screen no modal open",
+      "passed": true
+    },
+    {
+      "name": "Together screen one visible restart action",
+      "passed": true
+    },
+    {
+      "name": "Together screen no stale device status",
+      "passed": true
+    },
+    {
+      "name": "Focus is on visible acknowledged heading",
+      "passed": true
+    },
+    {
+      "name": "Together screen returns directly to setup",
+      "passed": true
+    },
+    {
+      "name": "Reset restores custom selection and next action",
+      "passed": true
+    },
+    {
+      "name": "Candidate preset setting survives reset",
+      "passed": true
+    },
+    {
+      "name": "Reset returns keyboard focus to start",
+      "passed": true
+    },
+    {
+      "name": "Restored finished direct restart visible",
+      "passed": true
+    },
+    {
+      "name": "Restored finished direct reset visible",
+      "passed": true
+    },
+    {
+      "name": "Restored finished menu trigger hidden",
+      "passed": true
+    },
+    {
+      "name": "Restored finished no modal open",
+      "passed": true
+    },
+    {
+      "name": "Restored finished one visible restart action",
+      "passed": true
+    },
+    {
+      "name": "Restored finished no stale device status",
+      "passed": true
+    },
+    {
+      "name": "finished keyboard restart uses stored 17 seconds",
+      "passed": true
+    },
+    {
+      "name": "finished keyboard restart retains teeth-brushing",
+      "passed": true
+    },
+    {
+      "name": "finished keyboard reset returns without confirmation",
+      "passed": true
+    },
+    {
+      "name": "Restored acknowledged direct restart visible",
+      "passed": true
+    },
+    {
+      "name": "Restored acknowledged direct reset visible",
+      "passed": true
+    },
+    {
+      "name": "Restored acknowledged menu trigger hidden",
+      "passed": true
+    },
+    {
+      "name": "Restored acknowledged no modal open",
+      "passed": true
+    },
+    {
+      "name": "Restored acknowledged one visible restart action",
+      "passed": true
+    },
+    {
+      "name": "Restored acknowledged no stale device status",
+      "passed": true
+    },
+    {
+      "name": "acknowledged keyboard restart uses stored 17 seconds",
+      "passed": true
+    },
+    {
+      "name": "acknowledged keyboard restart retains teeth-brushing",
+      "passed": true
+    },
+    {
+      "name": "acknowledged keyboard reset returns without confirmation",
+      "passed": true
+    },
+    {
+      "name": "Long hold opens running menu",
+      "passed": true
+    },
+    {
+      "name": "Deadline reached with open modal direct restart visible",
+      "passed": true
+    },
+    {
+      "name": "Deadline reached with open modal direct reset visible",
+      "passed": true
+    },
+    {
+      "name": "Deadline reached with open modal menu trigger hidden",
+      "passed": true
+    },
+    {
+      "name": "Deadline reached with open modal no modal open",
+      "passed": true
+    },
+    {
+      "name": "Deadline reached with open modal one visible restart action",
+      "passed": true
+    },
+    {
+      "name": "Deadline reached with open modal no stale device status",
+      "passed": true
+    },
+    {
+      "name": "Focus restored out of closed modal",
+      "passed": true
+    },
+    {
+      "name": "Deadline during long press never reopens menu",
+      "passed": true
+    },
+    {
+      "name": "Pause still works",
+      "passed": true
+    },
+    {
+      "name": "Paused uses protected menu, not completed controls",
+      "passed": true
+    },
+    {
+      "name": "Paused countdown frozen",
+      "passed": true
+    },
+    {
+      "name": "In-menu restart preserved",
+      "passed": true
+    },
+    {
+      "name": "In-menu reset still direct",
+      "passed": true
+    },
+    {
+      "name": "Demo starts at twenty seconds",
+      "passed": true
+    },
+    {
+      "name": "Existing animation reaches chewing phase",
+      "passed": true
+    },
+    {
+      "name": "20 second sample completes naturally with direct actions",
+      "passed": true
+    },
+    {
+      "name": "Acknowledged demo restarts at 20 seconds, not setup 5 minutes",
+      "passed": true
+    },
+    {
+      "name": "320x740 finished: buttons fit, no clipped labels",
+      "passed": true
+    },
+    {
+      "name": "320x740 finished: no horizontal page overflow",
+      "passed": true
+    },
+    {
+      "name": "320x740 finished: keyboard advances to reset",
+      "passed": true
+    },
+    {
+      "name": "390x844 finished: buttons fit, no clipped labels",
+      "passed": true
+    },
+    {
+      "name": "390x844 finished: no horizontal page overflow",
+      "passed": true
+    },
+    {
+      "name": "390x844 finished: keyboard advances to reset",
+      "passed": true
+    },
+    {
+      "name": "768x1024 finished: buttons fit, no clipped labels",
+      "passed": true
+    },
+    {
+      "name": "768x1024 finished: no horizontal page overflow",
+      "passed": true
+    },
+    {
+      "name": "768x1024 finished: keyboard advances to reset",
+      "passed": true
+    },
+    {
+      "name": "1280x900 finished: buttons fit, no clipped labels",
+      "passed": true
+    },
+    {
+      "name": "1280x900 finished: no horizontal page overflow",
+      "passed": true
+    },
+    {
+      "name": "1280x900 finished: keyboard advances to reset",
+      "passed": true
+    },
+    {
+      "name": "844x390 finished: buttons fit, no clipped labels",
+      "passed": true
+    },
+    {
+      "name": "844x390 finished: no horizontal page overflow",
+      "passed": true
+    },
+    {
+      "name": "844x390 finished: keyboard advances to reset",
+      "passed": true
+    },
+    {
+      "name": "320x740 acknowledged: buttons fit, no clipped labels",
+      "passed": true
+    },
+    {
+      "name": "320x740 acknowledged: no horizontal page overflow",
+      "passed": true
+    },
+    {
+      "name": "320x740 acknowledged: keyboard advances to reset",
+      "passed": true
+    },
+    {
+      "name": "390x844 acknowledged: buttons fit, no clipped labels",
+      "passed": true
+    },
+    {
+      "name": "390x844 acknowledged: no horizontal page overflow",
+      "passed": true
+    },
+    {
+      "name": "390x844 acknowledged: keyboard advances to reset",
+      "passed": true
+    },
+    {
+      "name": "768x1024 acknowledged: buttons fit, no clipped labels",
+      "passed": true
+    },
+    {
+      "name": "768x1024 acknowledged: no horizontal page overflow",
+      "passed": true
+    },
+    {
+      "name": "768x1024 acknowledged: keyboard advances to reset",
+      "passed": true
+    },
+    {
+      "name": "1280x900 acknowledged: buttons fit, no clipped labels",
+      "passed": true
+    },
+    {
+      "name": "1280x900 acknowledged: no horizontal page overflow",
+      "passed": true
+    },
+    {
+      "name": "1280x900 acknowledged: keyboard advances to reset",
+      "passed": true
+    },
+    {
+      "name": "844x390 acknowledged: buttons fit, no clipped labels",
+      "passed": true
+    },
+    {
+      "name": "844x390 acknowledged: no horizontal page overflow",
+      "passed": true
+    },
+    {
+      "name": "844x390 acknowledged: keyboard advances to reset",
+      "passed": true
+    },
+    {
+      "name": "Without storage completion controls still usable",
+      "passed": true
+    },
+    {
+      "name": "Without storage reset still works",
+      "passed": true
+    },
+    {
+      "name": "No JavaScript errors or native confirmation dialogs in storage test",
+      "passed": true
+    }
+  ],
+  "errors": [],
+  "passed": 103,
+  "total": 103,
+  "not_tested": [
+    "public HTTPS deployment",
+    "physical iPhone or Android",
+    "ChatGPT inline preview"
+  ]
+}

@@ -1,0 +1,9 @@
+{
+  "version": "8.0.0",
+  "base": "v7",
+  "html_bytes": 780712,
+  "html_sha256": "e7fb6e864451254b065fd80d9885de97cd277628b98304233d15e53a67842403",
+  "ui_checks_passed": 103,
+  "animation_changed": false,
+  "published": false
+}

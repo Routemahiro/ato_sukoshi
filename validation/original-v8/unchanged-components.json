@@ -1,0 +1,30 @@
+{
+  "countdown-core": {
+    "unchanged": true,
+    "sha256": "e9686177e058525beb431df9a748095e67784db493b3320e0a10eccf6e2865bd"
+  },
+  "snack-animation-core": {
+    "unchanged": true,
+    "sha256": "302e8049e6ba5987a3963991fe9db5f639b7054cafef042a41914336db0190b7"
+  },
+  "embedded-images-and-sounds": {
+    "unchanged": true,
+    "sha256": "5e5a75a369c8273fecad20c13aa394dd3869228da9e9fc29dcd574d56b66b00b"
+  },
+  "animation-render-and-transfer": {
+    "unchanged": true,
+    "sha256": "d019c0944b8797dbd8db2947446bd33460a9ef75fed48446332df218897e6e1c"
+  },
+  "time-button-preferences": {
+    "unchanged": true,
+    "sha256": "76b06539958b3dea80b0041e7ddeab23d4dcf0f3d4d54d92e892440e9b41cf49"
+  },
+  "time-selection-controls": {
+    "unchanged": true,
+    "sha256": "ffa8af2ee79be4a9ed4e10579e42552dcc9fed4fa631561f2cc8bf9067679fa6"
+  },
+  "restart-and-reset": {
+    "unchanged": true,
+    "sha256": "16a3f03c35856fae9753884e8ce730d9744451eed1c9605d19079f973308048c"
+  }
+}
