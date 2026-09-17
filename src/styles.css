@@ -55,6 +55,12 @@ input[type=number] { width: 60px; padding: 8px 5px; border: 1px solid #aebba8; b
 .next-choice:hover { border-color: #8ea080; }
 .extra-settings { margin-top: 14px; padding-top: 9px; border-top: 1px solid var(--line); font-size: 12px; }
 .extra-settings select { margin: 7px 0 10px; width: 100%; padding: 8px; background: white; color: var(--ink); border: 1px solid #aabca6; border-radius: 9px; }
+.character-settings { margin: 0 0 12px; padding: 0; border: 0; }
+.character-settings legend { font-size: 12px; font-weight: 650; margin-bottom: 7px; color: var(--ink); }
+.character-choices { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 7px; }
+.character-choice { background: #f5f5ef; border: 1.5px solid transparent; border-radius: 12px; padding: 10px 6px; min-height: 44px; font-size: 13px; font-weight: 700; }
+.character-choice[aria-pressed=true] { background: #e7efde; border-color: #799769; color: #35533f; }
+.character-choice:hover:not([aria-pressed=true]) { border-color: #b2c2a7; }
 .check-row { display: flex; align-items: center; gap: 7px; margin: 10px 0; cursor: pointer; }
 input[type=checkbox] { width: 18px; height: 18px; accent-color: var(--green); }
 .sound-row { display: flex; justify-content: space-between; align-items: center; gap: 6px; margin: 17px 0 13px; }

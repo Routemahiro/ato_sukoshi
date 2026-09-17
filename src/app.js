@@ -12,9 +12,13 @@
   const CURRENT={play:'あそび',video:'どうが',book:'えほん',meal:'ごはん'};
   const NEXT={tidy:'おかたづけ',meal:'ごはん',bath:'おふろ',out:'おでかけ',brush:'はみがき',sleep:'ねんね'};
   const SCENE_ALT={tidy:'おもちゃを片付けるりすさん',meal:'ごはんを食べるりすさん',bath:'おふろに入るりすさん',out:'リュックを背負って出かけるりすさん',brush:'歯みがきするりすさん',sleep:'おふとんで眠るりすさん'};
+  const CHARACTERS=Object.freeze({
+    squirrel:{id:'squirrel',label:'りすさん',snack:'どんぐり',ready:'squirrel-ready.webp',chew:i=>'chew-'+i+'.webp',snackIcon:'acorn.svg'},
+    elephant:{id:'elephant',label:'ぞうさん',snack:'りんご',ready:'elephant-ready.webp',chew:i=>'elephant-chew-'+i+'.webp',snackIcon:'apple.svg'}
+  });
   const PRESET_SECONDS=Object.freeze([60,180,300,600,900,1200,1800,2700,3600]);
   const DEFAULT_VISIBLE_PRESETS=Object.freeze([60,180,300,600]);
-  const DEFAULTS={seconds:300,next:'tidy',current:'play',munch:true,digits:true,awake:true,visiblePresets:DEFAULT_VISIBLE_PRESETS};
+  const DEFAULTS={seconds:300,next:'tidy',current:'play',character:'squirrel',munch:true,digits:true,awake:true,visiblePresets:DEFAULT_VISIBLE_PRESETS};
   const own=(obj,key)=>typeof key==='string' && Object.prototype.hasOwnProperty.call(obj,key);
   const timer=new Countdown();
   const reduced=matchMedia('(prefers-reduced-motion: reduce)');
@@ -46,6 +50,7 @@
     }
     if(own(NEXT,value.next)) p.next=value.next;
     if(own(CURRENT,value.current)) p.current=value.current;
+    if(own(CHARACTERS,value.character)) p.character=value.character;
     for(const k of ['munch','digits','awake']) if(typeof value[k]==='boolean') p[k]=value[k];
     // v1 sound:false is deliberately not carried over. End chime is always enabled.
     return p;
@@ -86,12 +91,32 @@
       '設定中：'+timeWords(prefs.seconds*1000)+'。「ほかの時間にする」から変更できます。';
   }
 
+  function character(){return CHARACTERS[prefs.character]||CHARACTERS.squirrel;}
+  function snackUnitLabel(){return character().snack+' 1こ = 10秒';}
+  function applyCharacterAssets(){
+    const c=character();
+    $('squirrel-ready').src=A[c.ready];
+    for(let i=0;i<CHEW_FRAME_COUNT;i++)$('chew-'+i).src=A[c.chew(i)];
+    $('flying-acorn').src=A[c.snackIcon];
+    gridKey='';snackVisualKey='';
+  }
+  function applyCharacterCopy(){
+    const c=character();
+    $('intro-lead').textContent=c.snack+'が なくなったら、おしまい。つぎにすることも、一緒に決めておこう。';
+    $('snack-timing-note').textContent=c.snack+'1こで10秒。最後の端数は、残りの秒数ぶんです。10分を超えると、60個ずつ表示します。';
+    $('help-start-text').textContent='「'+c.snack+'がなくなったら、おかたづけしようね」。残りの時間と、次にすることを一緒に確かめてから始めます。';
+    $('help-munch-text').textContent='並んだ'+c.snack+'を1こずつ手元に運んで食べます。食べ終わるまでが10秒です。最後に10秒未満が残る設定では、最後の1こがその秒数ぶんになります。10分を超える設定では60個ずつ表示し、続きの個数も表示します。';
+    $('help-visual-text').textContent='数字がまだ分からなくても、'+c.snack+'が少なくなる様子を見せられます。画面をずっと見続ける必要はありません。遊びの邪魔にならないところに置いてください。';
+    $('help-finish-text').textContent='終了後は、'+c.label+'が次の行動をしている絵が出ます。「つぎへ いこう」を押したら、画面から離れて一緒に始めましょう。すぐ切り替えられないときも、責めたり点数をつけたりするための道具ではありません。';
+    document.querySelectorAll('[data-character]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.character===prefs.character)));
+  }
   function reflectPrefs(){
     reflectDurationChoices();
     $('custom-minutes').value=String(Math.floor(prefs.seconds/60));$('custom-seconds').value=String(prefs.seconds%60);
     document.querySelectorAll('[data-next]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.next===prefs.next)));
     if($('munch-on')) $('munch-on').checked=prefs.munch;
     $('show-digits').checked=prefs.digits;$('keep-awake').checked=prefs.awake;
+    applyCharacterAssets();applyCharacterCopy();
     $('start-label').textContent=timeWords(prefs.seconds*1000)+'で はじめる';
     if(timer.status==='idle'){timer.reset(prefs.seconds*1000);gridKey='';}
     render(true);
@@ -177,10 +202,10 @@
     const root=$('acorns');root.replaceChildren();root.style.setProperty('--columns',String(cols));root.style.setProperty('--acorn-width',Math.min(420,cols*58)+'px');
     acornNodes=Array.from({length:s.pageCount},(_,i)=>{
       const div=document.createElement('div');div.className='acorn';div.dataset.index=String(s.pageStart+i);
-      const img=document.createElement('img');img.src=A['acorn.svg'];img.alt='';img.draggable=false;div.appendChild(img);root.appendChild(div);return div;
+      const img=document.createElement('img');img.src=A[character().snackIcon];img.alt='';img.draggable=false;div.appendChild(img);root.appendChild(div);return div;
     });
     $('reserve-note').hidden=s.reserve===0;$('reserve-note').textContent='このあとに、あと '+s.reserve+'こ';
-    $('acorn-unit').textContent=timer.durationMs<10000?`この1こで ${timeWords(timer.durationMs)}`:'どんぐり 1こ = 10秒';
+    $('acorn-unit').textContent=timer.durationMs<10000?`この1こで ${timeWords(timer.durationMs)}`:snackUnitLabel();
     if(timer.durationMs%10000!==0 && timer.durationMs>=10000)$('acorn-unit').textContent+='（最後は'+timeWords(timer.durationMs%10000)+'）';
     gridKey=key;snackVisualKey='';
   }
@@ -226,7 +251,8 @@
       setFrame(reduced.matches?-1:frame);
       $('flying-acorn').hidden=phase!=='reach'||reduced.matches;
       $('snack-theater').dataset.phase=phase;$('snack-theater').dataset.eaten=String(s.eaten);$('snack-theater').dataset.total=String(s.total);
-      $('squirrel-pose').setAttribute('aria-label',(phase==='waiting'||phase==='settle')?'つぎのどんぐりを待つりすさん':'並んだどんぐりを食べるりすさん');
+      const c=character();
+      $('squirrel-pose').setAttribute('aria-label',(phase==='waiting'||phase==='settle')?'つぎの'+c.snack+'を待つ'+c.label:'並んだ'+c.snack+'を食べる'+c.label);
       $('squirrel-pose').dataset.chewSubframe=String(s.subframe);
       snackVisualKey=key;
     }
@@ -263,10 +289,11 @@
     if(force||changed){
       $('state-label').textContent={idle:'じゅんび中',running:demo?'おためし中':'タイマー中',paused:'おやすみ中',finished:'おしまい',acknowledged:'つぎの じかん'}[mode];
       const title=$('stage-title'),sub=$('stage-subtitle');
-      if(mode==='finished'){title.textContent='おしまいの じかん';sub.textContent='りすさんも、つぎの じゅんび。';}
+      const c=character();
+      if(mode==='finished'){title.textContent='おしまいの じかん';sub.textContent=c.label+'も、つぎの じゅんび。';}
       else if(mode==='acknowledged'){title.textContent='いっしょに、はじめよう。';sub.textContent='タイマーは、ここで おしまい。';}
       else if(mode==='paused'){title.textContent='ちょっと、ひとやすみ。';sub.textContent='じかんは とまっているよ。';}
-      else{title.replaceChildren(document.createTextNode('どんぐりが なくなったら'),document.createElement('br'),document.createTextNode('おしまい。'));sub.textContent=mode==='idle'?'りすさんと、つぎのじゅんびを しよう。':'10びょうごとに、ひとつ パクパク。';}
+      else{title.replaceChildren(document.createTextNode(c.snack+'が なくなったら'),document.createElement('br'),document.createTextNode('おしまい。'));sub.textContent=mode==='idle'?c.label+'と、つぎのじゅんびを しよう。':'10びょうごとに、ひとつ パクパク。';}
       $('next-icon').setAttribute('href','#i-'+c.next);
       $('next-label').textContent=NEXT[c.next];$('ack-title').textContent=NEXT[c.next]+'の じかん';
       $('pause-button').hidden=!holdRequired();$('pause-button').textContent=mode==='paused'?'つづきから はじめる':'いったん とめる';
@@ -326,9 +353,6 @@
   function showParent(){cancelGate();tick();if(!holdRequired())return;deviceStatus();if(!$('parent-dialog').open)$('parent-dialog').showModal();}
   function startGate(){if(gateStarted||!holdRequired())return;gateStarted=true;$('parent-gate').classList.add('holding');gateTimer=setTimeout(()=>{if(gateStarted&&!document.hidden)showParent();},1800);}
 
-  // Preload the generated frames; swapping never starts a new request.
-  $('squirrel-ready').src=A['squirrel-ready.webp'];for(let i=0;i<CHEW_FRAME_COUNT;i++)$('chew-'+i).src=A['chew-'+i+'.webp'];
-  $('flying-acorn').src=A['acorn.svg'];
   Object.keys(NEXT).forEach(key=>{const img=new Image();img.src=A['next-'+key+'.webp'];});
   // Delegation also covers buttons added by the display-preference checkboxes.
   $('duration-choices').addEventListener('click',event=>{
@@ -346,6 +370,11 @@
     announce(prefs.visiblePresets.length?'時間ボタンの表示を更新しました。':'時間ボタンを非表示にしました。「ほかの時間にする」から設定できます。');
   }));
   document.querySelectorAll('[data-next]').forEach(b=>b.addEventListener('click',()=>{if(timer.status!=='idle')return;prefs.next=b.dataset.next;savePrefs();reflectPrefs();}));
+  document.querySelectorAll('[data-character]').forEach(b=>b.addEventListener('click',()=>{
+    if(timer.status!=='idle'||b.dataset.character===prefs.character)return;
+    prefs.character=b.dataset.character;savePrefs();applyCharacterAssets();applyCharacterCopy();render(true);
+    announce(character().label+'に かえました。');
+  }));
   $('apply-custom').addEventListener('click',()=>{
     const rm=$('custom-minutes').value,rs=$('custom-seconds').value,m=Number(rm),s=Number(rs),total=m*60+s;
     if(!rm.trim()||!rs.trim()||!Number.isInteger(m)||!Number.isInteger(s)||m<0||m>60||s<0||s>59||total<1||total>3600){$('custom-error').textContent='1秒〜60分で設定してください。秒は0〜59です。';$('custom-error').hidden=false;return;}
