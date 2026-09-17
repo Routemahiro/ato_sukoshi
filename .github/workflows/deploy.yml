@@ -13,6 +13,7 @@ concurrency:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -44,11 +45,51 @@ jobs:
           mkdir -p deploy
           cp index.html deploy/
 
-      - name: Upload index.html to Xserver FTP
+      - name: Upload index.html to Xserver FTP (attempt 1)
+        id: ftp1
+        continue-on-error: true
         uses: SamKirkland/FTP-Deploy-Action@v4.3.6
         with:
           server: ${{ secrets.FTP_SERVER }}
           username: ${{ secrets.FTP_USERNAME }}
           password: ${{ secrets.FTP_PASSWORD }}
+          protocol: ftps
+          port: 21
+          timeout: 120000
           local-dir: deploy/
           server-dir: ./
+
+      - name: Upload index.html to Xserver FTP (attempt 2)
+        id: ftp2
+        if: steps.ftp1.outcome == 'failure'
+        continue-on-error: true
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.6
+        with:
+          server: ${{ secrets.FTP_SERVER }}
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          protocol: ftps
+          port: 21
+          timeout: 120000
+          local-dir: deploy/
+          server-dir: ./
+
+      - name: Upload index.html to Xserver FTP (attempt 3)
+        id: ftp3
+        if: steps.ftp1.outcome == 'failure' && steps.ftp2.outcome == 'failure'
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.6
+        with:
+          server: ${{ secrets.FTP_SERVER }}
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          protocol: ftps
+          port: 21
+          timeout: 120000
+          local-dir: deploy/
+          server-dir: ./
+
+      - name: Report FTP deploy failure
+        if: steps.ftp1.outcome == 'failure' && steps.ftp2.outcome == 'failure' && steps.ftp3.outcome == 'failure'
+        run: |
+          echo "::error::FTP deploy failed after 3 attempts (control socket timeout or connection error)."
+          exit 1
