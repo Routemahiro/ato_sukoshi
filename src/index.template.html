@@ -105,7 +105,7 @@
 <main>
   <div class="intro setup-only">
     <h1>おわりを、いっしょに見つけよう。</h1>
-    <p>どんぐりが なくなったら、おしまい。つぎにすることも、一緒に決めておこう。</p>
+    <p id="intro-lead">どんぐりが なくなったら、おしまい。つぎにすることも、一緒に決めておこう。</p>
   </div>
   <div id="audio-restore" class="audio-restore" hidden>
     <span>音を鳴らすには、もう一度タップしてください。</span><button id="unlock-audio" type="button">終了音を有効に</button>
@@ -145,6 +145,13 @@
       </fieldset>
       <details class="extra-settings" id="extra-settings">
         <summary>音・表示</summary>
+        <fieldset class="character-settings" aria-labelledby="character-heading">
+          <legend id="character-heading">なかまを えらぶ</legend>
+          <div id="character-choices" class="character-choices" role="group" aria-label="なかまを選ぶ">
+            <button type="button" class="character-choice" data-character="squirrel" aria-pressed="true">りすさん</button>
+            <button type="button" class="character-choice" data-character="elephant" aria-pressed="false">ぞうさん</button>
+          </div>
+        </fieldset>
         <fieldset class="visible-times-settings" aria-describedby="preset-help">
           <legend>時間ボタンの表示</legend>
           <p class="preset-help" id="preset-help">チェックした時間だけ、上の<br>「あと、どれくらい？」に並びます。</p>
@@ -172,7 +179,7 @@
           <button id="reset-munch" type="button" class="sound-test" hidden>内蔵の音に戻す</button>
           <p class="dialog-note">2MB以下・0.05〜2秒の音。送信せず、このタブだけで使います。</p>
         </details>
-        <p class="dialog-note">どんぐり1個で10秒。最後の端数は、残りの秒数ぶんです。10分を超えると、60個ずつ表示します。</p>
+        <p class="dialog-note" id="snack-timing-note">どんぐり1こで10秒。最後の端数は、残りの秒数ぶんです。10分を超えると、60個ずつ表示します。</p>
       </details>
       <div class="sound-row">
         <span class="sound-label">おわりに、やさしい音</span>
@@ -246,10 +253,10 @@
 <footer class="footer setup-only"><p>広告なし・登録なし・外部の解析ツールなし</p><p>おわりを知らせる、親子のための小さな道具。</p></footer>
 <dialog id="help-dialog" aria-labelledby="help-title">
   <div class="dialog-head"><h2 id="help-title">いっしょに使う、3つのこと</h2><button type="button" class="close-dialog" data-close="help-dialog" aria-label="使いかたを閉じる">×</button></div>
-  <h3>はじめる前に、終わりを伝える</h3><p>「どんぐりがなくなったら、おかたづけしようね」。残りの時間と、次にすることを一緒に確かめてから始めます。</p>
-  <h3>10秒ごとに、ひとつパクパク</h3><p>並んだどんぐりを1個ずつ手元に運んで食べます。食べ終わるまでが10秒です。最後に10秒未満が残る設定では、最後の1個がその秒数ぶんになります。10分を超える設定では60個ずつ表示し、続きの個数も表示します。</p>
-  <h3>タイマーは、見えるところへ</h3><p>数字がまだ分からなくても、どんぐりが少なくなる様子を見せられます。画面をずっと見続ける必要はありません。遊びの邪魔にならないところに置いてください。</p>
-  <h3>おしまいは、次への合図</h3><p>終了後は、りすさんが次の行動をしている絵が出ます。「つぎへ いこう」を押したら、画面から離れて一緒に始めましょう。すぐ切り替えられないときも、責めたり点数をつけたりするための道具ではありません。</p>
+  <h3>はじめる前に、終わりを伝える</h3><p id="help-start-text">「どんぐりがなくなったら、おかたづけしようね」。残りの時間と、次にすることを一緒に確かめてから始めます。</p>
+  <h3>10秒ごとに、ひとつパクパク</h3><p id="help-munch-text">並んだどんぐりを1こずつ手元に運んで食べます。食べ終わるまでが10秒です。最後に10秒未満が残る設定では、最後の1こがその秒数ぶんになります。10分を超える設定では60個ずつ表示し、続きの個数も表示します。</p>
+  <h3>タイマーは、見えるところへ</h3><p id="help-visual-text">数字がまだ分からなくても、どんぐりが少なくなる様子を見せられます。画面をずっと見続ける必要はありません。遊びの邪魔にならないところに置いてください。</p>
+  <h3>おしまいは、次への合図</h3><p id="help-finish-text">終了後は、りすさんが次の行動をしている絵が出ます。「つぎへ いこう」を押したら、画面から離れて一緒に始めましょう。すぐ切り替えられないときも、責めたり点数をつけたりするための道具ではありません。</p>
   <h3>大人の操作</h3><p>計測中・一時停止中は、右下を約2秒長押しするとメニューが開きます。終了後は、画面に「タイマーを最初から」と「準備画面に戻る」を直接表示します。「いっしょに、はじめよう。」の画面でもメニューを開かずに操作できます。「準備画面に戻る」は確認なしで戻り、「タイマーを最初から」は同じ時間・同じ次の行動で、すぐにやり直します。終了音を切る設定はありません。音量は端末側で調整してください。</p>
   <h3>ブラウザ版での注意</h3><p>画面ロック・別アプリへの切り替え・省電力状態では、時間どおりに音が鳴るとは限りません。画面を戻すと終了予定時刻から残り時間を計算します。自動消灯の防止も、対応端末で許可された場合のみ動きます。</p>
   <h3>保存する情報</h3><p>選んだ設定は、このブラウザの中だけに保存します。途中の状態は同じタブの再読み込みで戻せますが、タブを閉じた後の復元は保証しません。名前・写真・利用履歴は入力・収集しません。公開先サーバーに通常のアクセス記録が残る場合はあります。</p>
