@@ -11,10 +11,13 @@
   const SESSION='atosukoshi.timer.v1';
   const CURRENT={play:'あそび',video:'どうが',book:'えほん',meal:'ごはん'};
   const NEXT={tidy:'おかたづけ',meal:'ごはん',bath:'おふろ',out:'おでかけ',brush:'はみがき',sleep:'ねんね'};
-  const SCENE_ALT={tidy:'おもちゃを片付けるりすさん',meal:'ごはんを食べるりすさん',bath:'おふろに入るりすさん',out:'リュックを背負って出かけるりすさん',brush:'歯みがきするりすさん',sleep:'おふとんで眠るりすさん'};
+  const SCENE_ALT={
+    squirrel:{tidy:'おもちゃを片付けるりすさん',meal:'ごはんを食べるりすさん',bath:'おふろに入るりすさん',out:'リュックを背負って出かけるりすさん',brush:'歯みがきするりすさん',sleep:'おふとんで眠るりすさん'},
+    elephant:{tidy:'おもちゃを片付けるぞうさん',meal:'ごはんを食べるぞうさん',bath:'おふろに入るぞうさん',out:'リュックを背負って出かけるぞうさん',brush:'歯みがきするぞうさん',sleep:'おふとんで眠るぞうさん'}
+  };
   const CHARACTERS=Object.freeze({
-    squirrel:{id:'squirrel',label:'りすさん',snack:'どんぐり',ready:'squirrel-ready.webp',chew:i=>'chew-'+i+'.webp',snackIcon:'acorn.svg'},
-    elephant:{id:'elephant',label:'ぞうさん',snack:'りんご',ready:'elephant-ready.webp',chew:i=>'elephant-chew-'+i+'.webp',snackIcon:'apple.svg'}
+    squirrel:{id:'squirrel',label:'りすさん',snack:'どんぐり',ready:'squirrel-ready.webp',chew:i=>'chew-'+i+'.webp',snackIcon:'acorn.svg',nextScene:k=>'next-'+k+'.webp'},
+    elephant:{id:'elephant',label:'ぞうさん',snack:'りんご',ready:'elephant-ready.webp',chew:i=>'elephant-chew-'+i+'.webp',snackIcon:'apple.svg',nextScene:k=>'elephant-next-'+k+'.webp'}
   });
   const PRESET_SECONDS=Object.freeze([60,180,300,600,900,1200,1800,2700,3600]);
   const DEFAULT_VISIBLE_PRESETS=Object.freeze([60,180,300,600]);
@@ -274,7 +277,7 @@
     }
   }
   function render(force=false){
-    const mode=timer.status,changed=lastMode!==mode,c=choices();
+    const mode=timer.status,changed=lastMode!==mode,sel=choices(),ch=character();
     const completed=mode==='finished'||mode==='acknowledged';
     const wasParentOpen=completed&&$('parent-dialog').open;
     // A menu left open at the deadline must not cover the completion screen.
@@ -289,13 +292,12 @@
     if(force||changed){
       $('state-label').textContent={idle:'じゅんび中',running:demo?'おためし中':'タイマー中',paused:'おやすみ中',finished:'おしまい',acknowledged:'つぎの じかん'}[mode];
       const title=$('stage-title'),sub=$('stage-subtitle');
-      const c=character();
-      if(mode==='finished'){title.textContent='おしまいの じかん';sub.textContent=c.label+'も、つぎの じゅんび。';}
+      if(mode==='finished'){title.textContent='おしまいの じかん';sub.textContent=ch.label+'も、つぎの じゅんび。';}
       else if(mode==='acknowledged'){title.textContent='いっしょに、はじめよう。';sub.textContent='タイマーは、ここで おしまい。';}
       else if(mode==='paused'){title.textContent='ちょっと、ひとやすみ。';sub.textContent='じかんは とまっているよ。';}
-      else{title.replaceChildren(document.createTextNode(c.snack+'が なくなったら'),document.createElement('br'),document.createTextNode('おしまい。'));sub.textContent=mode==='idle'?c.label+'と、つぎのじゅんびを しよう。':'10びょうごとに、ひとつ パクパク。';}
-      $('next-icon').setAttribute('href','#i-'+c.next);
-      $('next-label').textContent=NEXT[c.next];$('ack-title').textContent=NEXT[c.next]+'の じかん';
+      else{title.replaceChildren(document.createTextNode(ch.snack+'が なくなったら'),document.createElement('br'),document.createTextNode('おしまい。'));sub.textContent=mode==='idle'?ch.label+'と、つぎのじゅんびを しよう。':'10びょうごとに、ひとつ パクパク。';}
+      $('next-icon').setAttribute('href','#i-'+sel.next);
+      $('next-label').textContent=NEXT[sel.next];$('ack-title').textContent=NEXT[sel.next]+'の じかん';
       $('pause-button').hidden=!holdRequired();$('pause-button').textContent=mode==='paused'?'つづきから はじめる':'いったん とめる';
       $('parent-gate').dataset.instant='false';
       $('gate-label').textContent='おとなの操作 · 長押し';
@@ -303,7 +305,8 @@
       $('parent-note').textContent='この画面を開くだけでは、時間は止まりません。';
       deviceStatus();
     }
-    if(sceneKey!==c.next){$('next-scene').src=A['next-'+c.next+'.webp'];$('next-scene').alt=SCENE_ALT[c.next];sceneKey=c.next;}
+    const sceneId=ch.id+':'+sel.next;
+    if(sceneKey!==sceneId){$('next-scene').src=A[ch.nextScene(sel.next)];$('next-scene').alt=SCENE_ALT[ch.id][sel.next];sceneKey=sceneId;}
     const remaining=timer.remaining(),seconds=Math.ceil(remaining/1000);
     if(force||changed||lastSeconds!==seconds){
       const text=formatTime(remaining);$('time-display').textContent=text;$('time-display').setAttribute('aria-label','残り'+timeWords(remaining));
@@ -353,7 +356,9 @@
   function showParent(){cancelGate();tick();if(!holdRequired())return;deviceStatus();if(!$('parent-dialog').open)$('parent-dialog').showModal();}
   function startGate(){if(gateStarted||!holdRequired())return;gateStarted=true;$('parent-gate').classList.add('holding');gateTimer=setTimeout(()=>{if(gateStarted&&!document.hidden)showParent();},1800);}
 
-  Object.keys(NEXT).forEach(key=>{const img=new Image();img.src=A['next-'+key+'.webp'];});
+  Object.keys(NEXT).forEach(key=>{
+    Object.values(CHARACTERS).forEach(c=>{const img=new Image();img.src=A[c.nextScene(key)];});
+  });
   // Delegation also covers buttons added by the display-preference checkboxes.
   $('duration-choices').addEventListener('click',event=>{
     const b=event.target.closest('button[data-seconds]');
@@ -372,7 +377,7 @@
   document.querySelectorAll('[data-next]').forEach(b=>b.addEventListener('click',()=>{if(timer.status!=='idle')return;prefs.next=b.dataset.next;savePrefs();reflectPrefs();}));
   document.querySelectorAll('[data-character]').forEach(b=>b.addEventListener('click',()=>{
     if(timer.status!=='idle'||b.dataset.character===prefs.character)return;
-    prefs.character=b.dataset.character;savePrefs();applyCharacterAssets();applyCharacterCopy();render(true);
+    prefs.character=b.dataset.character;sceneKey='';savePrefs();applyCharacterAssets();applyCharacterCopy();render(true);
     announce(character().label+'に かえました。');
   }));
   $('apply-custom').addEventListener('click',()=>{
