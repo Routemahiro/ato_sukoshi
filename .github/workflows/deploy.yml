@@ -1,0 +1,54 @@
+name: Deploy to Xserver FTP
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-ato-sukoshi
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Verify FTP secrets
+        run: |
+          missing=0
+          if [ -z "${{ secrets.FTP_SERVER }}" ]; then
+            echo "::error::FTP_SERVER secret is not set. Add it in GitHub → Settings → Secrets and variables → Actions."
+            missing=1
+          fi
+          if [ -z "${{ secrets.FTP_USERNAME }}" ]; then
+            echo "::error::FTP_USERNAME secret is not set. Add it in GitHub → Settings → Secrets and variables → Actions."
+            missing=1
+          fi
+          if [ -z "${{ secrets.FTP_PASSWORD }}" ]; then
+            echo "::error::FTP_PASSWORD secret is not set. Add it in GitHub → Settings → Secrets and variables → Actions."
+            missing=1
+          fi
+          if [ "$missing" -eq 1 ]; then
+            exit 1
+          fi
+
+      - name: Build distribute index.html
+        run: npm run build
+
+      - name: Stage deploy artifact
+        run: |
+          mkdir -p deploy
+          cp index.html deploy/
+
+      - name: Upload index.html to Xserver FTP
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.6
+        with:
+          server: ${{ secrets.FTP_SERVER }}
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          local-dir: deploy/
+          server-dir: ./
