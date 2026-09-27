@@ -4,7 +4,7 @@
 (() => {
   'use strict';
   const {Countdown,formatTime}=window.Atosukoshi;
-  const {snackState,CHEW_FRAME_COUNT}=window.AtosukoshiSnacks;
+  const {snackState,CHEW_FRAME_COUNT,chewClockSubframe}=window.AtosukoshiSnacks;
   const A=window.TimerAssets;
   const $=id=>document.getElementById(id);
   const PREF='atosukoshi.preferences.v2', OLD_PREF='atosukoshi.preferences.v1';
@@ -195,7 +195,7 @@
     node.onended=()=>{munchNodes.delete(node);node.disconnect();gain.disconnect();};
     window.dispatchEvent(new CustomEvent('atosukoshi:munch',{detail:{index,custom:customMunch,duration}}));return true;
   }
-  function suppressCurrentSound(){const s=snackState(timer.durationMs,timer.remaining());lastSoundIndex=s.index;lastSoundPhase=s.phase;lastMunchCue=s.index+':'+s.chewBeat;}
+  function suppressCurrentSound(){const s=snackState(timer.durationMs,timer.remaining(),character().id);lastSoundIndex=s.index;lastSoundPhase=s.phase;lastMunchCue=s.index+':'+s.chewBeat;}
 
   function buildGrid(s){
     const key=timer.durationMs+':'+s.pageStart;
@@ -229,7 +229,7 @@
   function applyChewPose(s,phase){
     const pose=$('squirrel-pose');
     if(reduced.matches || phase!=='chew' || s.subframe<0){ pose.style.transform=''; return; }
-    const loop=s.subframe%6;
+    const loop=chewClockSubframe(s.cycleProgress)%6;
     const bob=[0,-3,-1,1,-2,0][loop];
     const rot=[0,-1.2,.2,1.1,-.5,.3][loop];
     const sx=[1,1.006,1.012,1.008,1.004,1][loop];
@@ -238,7 +238,7 @@
   }
   function renderSnacks(){
     if(['finished','acknowledged'].includes(timer.status)){cancelAnimationFrame(raf);raf=0;return;}
-    const s=snackState(timer.durationMs,timer.remaining());
+    const s=snackState(timer.durationMs,timer.remaining(),character().id);
     buildGrid(s);
     const moving=timer.status==='running'||timer.status==='paused';
     const phase=moving?s.phase:'waiting';
