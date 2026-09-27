@@ -136,7 +136,6 @@ body[data-mode=acknowledged] .stage { min-height: 510px; }
 dialog { width: min(92vw,460px); max-height: 85svh; border: 1px solid #dce2d4; padding: 27px; border-radius: 24px; background: #fffef9; color: var(--ink); box-shadow: 0 20px 80px #31422b33; }
 dialog::backdrop { background: #253b2d66; backdrop-filter: blur(3px); }
 dialog h2 { font-size: 20px; margin: 0 0 10px; }
-dialog h3 { font-size: 14px; margin: 18px 0 5px; }
 dialog p { font-size: 13px; line-height: 1.9; }
 .dialog-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 5px; }
 .close-dialog { width: 40px; height: 40px; border-radius: 50%; background: #edf1e6; font-size: 20px; flex-shrink: 0; }

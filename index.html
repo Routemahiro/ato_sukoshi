@@ -147,7 +147,6 @@ body[data-mode=acknowledged] .stage { min-height: 510px; }
 dialog { width: min(92vw,460px); max-height: 85svh; border: 1px solid #dce2d4; padding: 27px; border-radius: 24px; background: #fffef9; color: var(--ink); box-shadow: 0 20px 80px #31422b33; }
 dialog::backdrop { background: #253b2d66; backdrop-filter: blur(3px); }
 dialog h2 { font-size: 20px; margin: 0 0 10px; }
-dialog h3 { font-size: 14px; margin: 18px 0 5px; }
 dialog p { font-size: 13px; line-height: 1.9; }
 .dialog-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 5px; }
 .close-dialog { width: 40px; height: 40px; border-radius: 50%; background: #edf1e6; font-size: 20px; flex-shrink: 0; }
@@ -604,18 +603,6 @@ body[data-mode=finished] .device-status, body[data-mode=acknowledged] .device-st
     </section>
   </div>
 </main>
-<dialog id="help-dialog" aria-labelledby="help-title">
-  <div class="dialog-head"><h2 id="help-title">いっしょに使う、3つのこと</h2><button type="button" class="close-dialog" data-close="help-dialog" aria-label="使いかたを閉じる">×</button></div>
-  <h3>はじめる前に、終わりを伝える</h3><p id="help-start-text">「どんぐりがなくなったら、おかたづけしようね」。残りの時間と、次にすることを一緒に確かめてから始めます。</p>
-  <h3>10秒ごとに、ひとつパクパク</h3><p id="help-munch-text">並んだどんぐりを1こずつ手元に運んで食べます。食べ終わるまでが10秒です。最後に10秒未満が残る設定では、最後の1こがその秒数ぶんになります。10分を超える設定では60個ずつ表示し、続きの個数も表示します。</p>
-  <h3>タイマーは、見えるところへ</h3><p id="help-visual-text">数字がまだ分からなくても、どんぐりが少なくなる様子を見せられます。画面をずっと見続ける必要はありません。遊びの邪魔にならないところに置いてください。</p>
-  <h3>おしまいは、次への合図</h3><p id="help-finish-text">終了後は、りすさんが次の行動をしている絵が出ます。「つぎへ いこう」を押したら、画面から離れて一緒に始めましょう。すぐ切り替えられないときも、責めたり点数をつけたりするための道具ではありません。</p>
-  <h3>大人の操作</h3><p>計測中・一時停止中は、右下を約2秒長押しするとメニューが開きます。終了後は、画面に「タイマーを最初から」と「準備画面に戻る」を直接表示します。「いっしょに、はじめよう。」の画面でもメニューを開かずに操作できます。「準備画面に戻る」は確認なしで戻り、「タイマーを最初から」は同じ時間・同じ次の行動で、すぐにやり直します。終了音を切る設定はありません。音量は端末側で調整してください。</p>
-  <h3>ブラウザ版での注意</h3><p>画面ロック・別アプリへの切り替え・省電力状態では、時間どおりに音が鳴るとは限りません。画面を戻すと終了予定時刻から残り時間を計算します。自動消灯の防止も、対応端末で許可された場合のみ動きます。</p>
-  <h3>保存する情報</h3><p>選んだ設定は、このブラウザの中だけに保存します。途中の状態は同じタブの再読み込みで戻せますが、タブを閉じた後の復元は保証しません。名前・写真・利用履歴は入力・収集しません。公開先サーバーに通常のアクセス記録が残る場合はあります。</p>
-  <p class="dialog-note" id="offline-status">単体HTML版は、保存したファイルをオフラインでも開けます。</p>
-  <button type="button" id="clear-settings" class="secondary">このブラウザに保存した設定を消す</button>
-</dialog>
 <dialog id="parent-dialog" aria-labelledby="parent-title">
   <div class="dialog-head"><h2 id="parent-title">おとなの操作</h2><button type="button" class="close-dialog" data-close="parent-dialog" aria-label="こどもの画面に戻る">×</button></div>
   <p id="parent-timer-summary">残り 05:00</p>
@@ -918,10 +905,6 @@ body[data-mode=finished] .device-status, body[data-mode=acknowledged] .device-st
   function applyCharacterCopy(){
     const c=character();
     $('snack-timing-note').textContent=c.snack+'1こで10秒。最後の端数は、残りの秒数ぶんです。10分を超えると、60個ずつ表示します。';
-    $('help-start-text').textContent='「'+c.snack+'がなくなったら、おかたづけしようね」。残りの時間と、次にすることを一緒に確かめてから始めます。';
-    $('help-munch-text').textContent='並んだ'+c.snack+'を1こずつ手元に運んで食べます。食べ終わるまでが10秒です。最後に10秒未満が残る設定では、最後の1こがその秒数ぶんになります。10分を超える設定では60個ずつ表示し、続きの個数も表示します。';
-    $('help-visual-text').textContent='数字がまだ分からなくても、'+c.snack+'が少なくなる様子を見せられます。画面をずっと見続ける必要はありません。遊びの邪魔にならないところに置いてください。';
-    $('help-finish-text').textContent='終了後は、'+c.label+'が次の行動をしている絵が出ます。「つぎへ いこう」を押したら、画面から離れて一緒に始めましょう。すぐ切り替えられないときも、責めたり点数をつけたりするための道具ではありません。';
     document.querySelectorAll('[data-character]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.character===prefs.character)));
   }
   function reflectPrefs(){
@@ -1253,10 +1236,6 @@ body[data-mode=finished] .device-status, body[data-mode=acknowledged] .device-st
     saveSession();render(true);$('parent-dialog').close();
   });
   document.querySelectorAll('[data-close]').forEach(b=>b.addEventListener('click',()=>$(b.dataset.close).close()));
-  $('clear-settings').addEventListener('click',()=>{
-    saveStorage('localStorage',PREF,null);saveStorage('localStorage',OLD_PREF,null);saveStorage('sessionStorage',SESSION,null);
-    prefs={...DEFAULTS};restoreDefaultMunch();reflectPrefs();toast('保存した設定を消しました。');
-  });
   if(document.fullscreenEnabled&&document.documentElement.requestFullscreen){
     $('fullscreen-button').hidden=false;$('fullscreen-button').addEventListener('click',async()=>{try{if(document.fullscreenElement)await document.exitFullscreen();else await document.documentElement.requestFullscreen();}catch{toast('この環境では全画面にできません。通常の画面で使えます。');}});
     document.addEventListener('fullscreenchange',()=>$('fullscreen-button').setAttribute('aria-label',document.fullscreenElement?'全画面をやめる':'画面を大きくする'));

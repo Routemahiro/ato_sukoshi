@@ -42,6 +42,11 @@ test('header pill, how-to link, and hero copy are absent',()=>{
   assert.equal(h.includes('class="intro'),false);
   assert.equal(js.includes('intro-lead'),false);
   assert.equal(js.includes('help-button'),false);
+  assert.equal(h.includes('id="help-dialog"'),false);
+  assert.equal(h.includes('id="clear-settings"'),false);
+  assert.equal(js.includes('help-dialog'),false);
+  assert.equal(js.includes('clear-settings'),false);
+  assert.equal(js.includes('help-start-text'),false);
   assert.ok(h.includes('id="fullscreen-button"'));
   assert.ok(h.includes('<h1 class="brand-name">あとすこし</h1>'));
   assert.equal((h.match(/<h1\b/g)||[]).length,1);

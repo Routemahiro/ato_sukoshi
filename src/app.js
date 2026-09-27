@@ -106,10 +106,6 @@
   function applyCharacterCopy(){
     const c=character();
     $('snack-timing-note').textContent=c.snack+'1こで10秒。最後の端数は、残りの秒数ぶんです。10分を超えると、60個ずつ表示します。';
-    $('help-start-text').textContent='「'+c.snack+'がなくなったら、おかたづけしようね」。残りの時間と、次にすることを一緒に確かめてから始めます。';
-    $('help-munch-text').textContent='並んだ'+c.snack+'を1こずつ手元に運んで食べます。食べ終わるまでが10秒です。最後に10秒未満が残る設定では、最後の1こがその秒数ぶんになります。10分を超える設定では60個ずつ表示し、続きの個数も表示します。';
-    $('help-visual-text').textContent='数字がまだ分からなくても、'+c.snack+'が少なくなる様子を見せられます。画面をずっと見続ける必要はありません。遊びの邪魔にならないところに置いてください。';
-    $('help-finish-text').textContent='終了後は、'+c.label+'が次の行動をしている絵が出ます。「つぎへ いこう」を押したら、画面から離れて一緒に始めましょう。すぐ切り替えられないときも、責めたり点数をつけたりするための道具ではありません。';
     document.querySelectorAll('[data-character]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.character===prefs.character)));
   }
   function reflectPrefs(){
@@ -441,10 +437,6 @@
     saveSession();render(true);$('parent-dialog').close();
   });
   document.querySelectorAll('[data-close]').forEach(b=>b.addEventListener('click',()=>$(b.dataset.close).close()));
-  $('clear-settings').addEventListener('click',()=>{
-    saveStorage('localStorage',PREF,null);saveStorage('localStorage',OLD_PREF,null);saveStorage('sessionStorage',SESSION,null);
-    prefs={...DEFAULTS};restoreDefaultMunch();reflectPrefs();toast('保存した設定を消しました。');
-  });
   if(document.fullscreenEnabled&&document.documentElement.requestFullscreen){
     $('fullscreen-button').hidden=false;$('fullscreen-button').addEventListener('click',async()=>{try{if(document.fullscreenElement)await document.exitFullscreen();else await document.documentElement.requestFullscreen();}catch{toast('この環境では全画面にできません。通常の画面で使えます。');}});
     document.addEventListener('fullscreenchange',()=>$('fullscreen-button').setAttribute('aria-label',document.fullscreenElement?'全画面をやめる':'画面を大きくする'));
