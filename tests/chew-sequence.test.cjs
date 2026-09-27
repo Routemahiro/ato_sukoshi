@@ -1,4 +1,5 @@
 const test=require('node:test'),assert=require('node:assert/strict'),crypto=require('node:crypto');
+const fs=require('node:fs'),path=require('node:path');
 const {snackState,CHEW_SOUND_COUNT}=require('../src/snack-core.js');
 
 function at(ms,character,duration=10000){return snackState(duration,duration-ms,character);}
@@ -73,4 +74,51 @@ test('squirrel snackState matches the pre-change pin',()=>{
   }
   const hash=crypto.createHash('sha256').update(JSON.stringify(samples)).digest('hex');
   assert.equal(hash,'10f9ed4e83f9fb1a06d9ddb07b8c53a0e0b5763fbc68c0cf4dcde364a267c086');
+});
+
+function themeCharacterIds(){
+  const src=fs.readFileSync(path.join(__dirname,'../src/app.js'),'utf8');
+  const start=src.indexOf('const CHARACTERS=Object.freeze({');
+  const end=src.indexOf('\n  });',start);
+  assert.ok(start>=0&&end>start,'theme character config');
+  const ids=[...src.slice(start,end).matchAll(/\bid:'([^']+)'/g)].map(m=>m[1]);
+  assert.ok(ids.includes('squirrel')&&ids.includes('elephant'));
+  assert.equal(new Set(ids).size,ids.length);
+  return ids;
+}
+
+test('every theme character shares one chew frame sequence',()=>{
+  const ids=themeCharacterIds();
+  const slot=6000/9;
+  function sequence(id){
+    const rows=[];
+    for(let i=0;i<9;i++){
+      const mid=2000+(i+.5)*slot;
+      const s=snackState(10000,10000-mid,id);
+      rows.push([i,s.phase,s.frame,s.subframe]);
+    }
+    for(const ms of [2000,2667,3500,7999,8000]){
+      const s=snackState(10000,10000-ms,id);
+      rows.push([ms,s.phase,s.frame,s.subframe,s.chewBeat]);
+    }
+    const done=snackState(10000,0,id);
+    rows.push(['complete',done.phase,done.frame,done.subframe,done.chewBeat]);
+    return rows;
+  }
+  const shared=sequence();
+  assert.deepEqual(shared.slice(0,9).map(row=>row[2]),[0,1,2,3,4,5,6,7,8]);
+  assert.equal(shared.at(-1)[1],'complete');
+  assert.equal(shared.at(-1)[2],8);
+  const settle=shared.find(row=>row[0]===8000);
+  assert.equal(settle[1],'settle');
+  assert.equal(settle[2],8);
+  for(const id of ids) assert.deepEqual(sequence(id),shared,id);
+});
+
+test('chew timing is one shared sequence',()=>{
+  const src=fs.readFileSync(path.join(__dirname,'../src/snack-core.js'),'utf8');
+  assert.equal(src.includes('CHEW_SEQUENCES'),false);
+  assert.equal(src.includes('characterId'),false);
+  assert.match(src,/function snackState\(durationMs, remainingMs\)/);
+  assert.match(src,/const CHEW_SEQUENCE = Object\.freeze\(\[0,1,2,3,4,5,6,7,8\]\)/);
 });
