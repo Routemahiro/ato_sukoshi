@@ -1,0 +1,80 @@
+const test=require('node:test'),assert=require('node:assert/strict'),crypto=require('node:crypto');
+const {snackState,chewClockSubframe,CHEW_SOUND_COUNT}=require('../src/snack-core.js');
+
+function at(ms,character,duration=10000){return snackState(duration,duration-ms,character);}
+
+test('elephant chew boundaries',()=>{
+  assert.equal(at(2000,'elephant').phase,'chew');
+  assert.equal(at(2000,'elephant').frame,0);
+  const openAt=2000+2*(6000/36);
+  assert.equal(at(Math.floor(openAt),'elephant').frame,0);
+  assert.equal(at(Math.ceil(openAt),'elephant').frame,1);
+  assert.equal(at(3500,'elephant').phase,'chew');
+  assert.equal(at(3500,'elephant').frame,2);
+  assert.equal(at(7999,'elephant').phase,'chew');
+  assert.equal(at(7999,'elephant').frame,7);
+  assert.equal(at(8000,'elephant').phase,'settle');
+  assert.equal(at(8000,'elephant').frame,8);
+  const done=snackState(10000,0,'elephant');
+  assert.equal(done.phase,'complete');
+  assert.equal(done.frame,8);
+});
+
+test('elephant holds closed-closed-open three times per stage',()=>{
+  const pattern=[];
+  for(let k=0;k<4;k++) for(let n=0;n<3;n++) pattern.push(2*k,2*k,2*k+1);
+  assert.equal(pattern.length,36);
+  const slot=6000/36;
+  for(let i=0;i<36;i++){
+    const mid=2000+(i+.5)*slot;
+    const s=at(mid,'elephant');
+    assert.equal(s.phase,'chew','slot '+i);
+    assert.equal(s.frame,pattern[i],'slot '+i);
+    assert.equal(s.subframe,i,'slot '+i);
+  }
+});
+
+test('both characters keep six munch beats in the chew window',()=>{
+  for(const id of [undefined,'squirrel','elephant']){
+    const beats=[];
+    for(let ms=2000;ms<8000;ms+=50) beats.push(at(ms,id).chewBeat);
+    assert.deepEqual([...new Set(beats)],[0,1,2,3,4,5]);
+    assert.equal(CHEW_SOUND_COUNT,6);
+    assert.equal(at(2000,id).chewBeat,0);
+    assert.equal(at(7999,id).chewBeat,5);
+  }
+});
+
+test('squirrel snackState matches the pre-change pin',()=>{
+  const durations=[1000,10000,11000,20000,60000,3599999,3600000];
+  const samples=[];
+  for(const d of durations){
+    const points=new Set([0,1,d-1,d,d+1,-1,d+5]);
+    const limit=Math.min(d,30000);
+    for(let t=0;t<=limit;t+=137) points.add(t);
+    for(const edge of [999,1000,1999,2000,2333,2334,2666,2667,3499,3500,5999,6000,7999,8000,8001,9999,10000]){
+      points.add(edge);
+      points.add(edge+10000);
+      points.add(edge+20000);
+    }
+    for(const remaining of [...points].sort((a,b)=>a-b)){
+      let value;
+      try{value=snackState(d,remaining);}
+      catch(e){value={error:e.name,message:e.message};}
+      const named=snackState(d,remaining,'squirrel');
+      assert.deepEqual(named,value);
+      if(!value.error){
+        if(value.phase==='chew') assert.equal(chewClockSubframe(value.cycleProgress),value.subframe);
+        const elephant=snackState(d,remaining,'elephant');
+        for(const key of Object.keys(value)){
+          if(key==='frame'||key==='subframe') continue;
+          assert.equal(elephant[key],value[key],key+' @ '+d+'/'+remaining);
+        }
+        if(value.phase!=='chew') assert.equal(elephant.frame,value.frame);
+      }
+      samples.push({d,remaining,value});
+    }
+  }
+  const hash=crypto.createHash('sha256').update(JSON.stringify(samples)).digest('hex');
+  assert.equal(hash,'10f9ed4e83f9fb1a06d9ddb07b8c53a0e0b5763fbc68c0cf4dcde364a267c086');
+});

@@ -4,7 +4,7 @@
 (() => {
   'use strict';
   const {Countdown,formatTime}=window.Atosukoshi;
-  const {snackState,CHEW_FRAME_COUNT}=window.AtosukoshiSnacks;
+  const {snackState,CHEW_FRAME_COUNT,chewClockSubframe}=window.AtosukoshiSnacks;
   const A=window.TimerAssets;
   const $=id=>document.getElementById(id);
   const PREF='atosukoshi.preferences.v2', OLD_PREF='atosukoshi.preferences.v1';
@@ -106,10 +106,6 @@
   function applyCharacterCopy(){
     const c=character();
     $('snack-timing-note').textContent=c.snack+'1こで10秒。最後の端数は、残りの秒数ぶんです。10分を超えると、60個ずつ表示します。';
-    $('help-start-text').textContent='「'+c.snack+'がなくなったら、おかたづけしようね」。残りの時間と、次にすることを一緒に確かめてから始めます。';
-    $('help-munch-text').textContent='並んだ'+c.snack+'を1こずつ手元に運んで食べます。食べ終わるまでが10秒です。最後に10秒未満が残る設定では、最後の1こがその秒数ぶんになります。10分を超える設定では60個ずつ表示し、続きの個数も表示します。';
-    $('help-visual-text').textContent='数字がまだ分からなくても、'+c.snack+'が少なくなる様子を見せられます。画面をずっと見続ける必要はありません。遊びの邪魔にならないところに置いてください。';
-    $('help-finish-text').textContent='終了後は、'+c.label+'が次の行動をしている絵が出ます。「つぎへ いこう」を押したら、画面から離れて一緒に始めましょう。すぐ切り替えられないときも、責めたり点数をつけたりするための道具ではありません。';
     document.querySelectorAll('[data-character]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.character===prefs.character)));
   }
   function reflectPrefs(){
@@ -195,7 +191,7 @@
     node.onended=()=>{munchNodes.delete(node);node.disconnect();gain.disconnect();};
     window.dispatchEvent(new CustomEvent('atosukoshi:munch',{detail:{index,custom:customMunch,duration}}));return true;
   }
-  function suppressCurrentSound(){const s=snackState(timer.durationMs,timer.remaining());lastSoundIndex=s.index;lastSoundPhase=s.phase;lastMunchCue=s.index+':'+s.chewBeat;}
+  function suppressCurrentSound(){const s=snackState(timer.durationMs,timer.remaining(),character().id);lastSoundIndex=s.index;lastSoundPhase=s.phase;lastMunchCue=s.index+':'+s.chewBeat;}
 
   function buildGrid(s){
     const key=timer.durationMs+':'+s.pageStart;
@@ -229,7 +225,7 @@
   function applyChewPose(s,phase){
     const pose=$('squirrel-pose');
     if(reduced.matches || phase!=='chew' || s.subframe<0){ pose.style.transform=''; return; }
-    const loop=s.subframe%6;
+    const loop=chewClockSubframe(s.cycleProgress)%6;
     const bob=[0,-3,-1,1,-2,0][loop];
     const rot=[0,-1.2,.2,1.1,-.5,.3][loop];
     const sx=[1,1.006,1.012,1.008,1.004,1][loop];
@@ -238,7 +234,7 @@
   }
   function renderSnacks(){
     if(['finished','acknowledged'].includes(timer.status)){cancelAnimationFrame(raf);raf=0;return;}
-    const s=snackState(timer.durationMs,timer.remaining());
+    const s=snackState(timer.durationMs,timer.remaining(),character().id);
     buildGrid(s);
     const moving=timer.status==='running'||timer.status==='paused';
     const phase=moving?s.phase:'waiting';
@@ -441,10 +437,6 @@
     saveSession();render(true);$('parent-dialog').close();
   });
   document.querySelectorAll('[data-close]').forEach(b=>b.addEventListener('click',()=>$(b.dataset.close).close()));
-  $('clear-settings').addEventListener('click',()=>{
-    saveStorage('localStorage',PREF,null);saveStorage('localStorage',OLD_PREF,null);saveStorage('sessionStorage',SESSION,null);
-    prefs={...DEFAULTS};restoreDefaultMunch();reflectPrefs();toast('保存した設定を消しました。');
-  });
   if(document.fullscreenEnabled&&document.documentElement.requestFullscreen){
     $('fullscreen-button').hidden=false;$('fullscreen-button').addEventListener('click',async()=>{try{if(document.fullscreenElement)await document.exitFullscreen();else await document.documentElement.requestFullscreen();}catch{toast('この環境では全画面にできません。通常の画面で使えます。');}});
     document.addEventListener('fullscreenchange',()=>$('fullscreen-button').setAttribute('aria-label',document.fullscreenElement?'全画面をやめる':'画面を大きくする'));
