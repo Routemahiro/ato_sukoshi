@@ -19,6 +19,19 @@ test('short remainder keeps its deadline',()=>{assert.equal(snackState(11000,100
 test('long timer uses next tray',()=>assert.equal(snackState(3600000,3000000).pageStart,60));
 test('nine visibility choices remain separate from time selection',()=>{const h=read('index.html');assert.equal((h.match(/data-visible-preset="/g)||[]).length,9);assert.ok(h.includes('id="custom-minutes"'));assert.ok(!h.includes('id="current-activity"'));});
 test('both direct completion buttons exist',()=>{const h=read('index.html');assert.ok(h.includes('id="finished-restart-button"'));assert.ok(h.includes('id="finished-reset-button"'));});
+test('setup hint names the selected next activity',()=>{
+  const js=read('src/app.js'),h=read('index.html');
+  const next={tidy:'おかたづけ',meal:'ごはん',bath:'おふろ',out:'おでかけ',brush:'はみがき',sleep:'ねんね'};
+  const parsed=Object.assign({},vm.runInNewContext('('+js.match(/const NEXT=(\{[^}]+\})/)[1]+')'));
+  assert.deepEqual(parsed,next);
+  assert.ok(js.includes("$('parent-hint-quote').textContent='「ぜんぶ なくなったら、'+NEXT[sel.next]+'しようね」'"));
+  for(const label of Object.values(parsed))assert.ok(('「ぜんぶ なくなったら、'+label+'しようね」').endsWith(label+'しようね」'));
+  assert.ok(h.includes('id="parent-hint-quote">「ぜんぶ なくなったら、おかたづけしようね」'));
+  assert.equal(h.includes('おしまいね'),false);
+  assert.equal(h.includes('広告なし'),false);
+  assert.equal(h.includes('親子のための小さな道具'),false);
+  assert.equal(h.includes('<footer'),false);
+});
 test('header pill, how-to link, and hero copy are absent',()=>{
   const h=read('index.html');
   const js=read('src/app.js');

@@ -297,6 +297,7 @@
       else{title.replaceChildren(document.createTextNode(ch.snack+'が なくなったら'),document.createElement('br'),document.createTextNode('おしまい。'));sub.textContent=mode==='idle'?ch.label+'と、つぎのじゅんびを しよう。':'10びょうごとに、ひとつ パクパク。';}
       $('next-icon').setAttribute('href','#i-'+sel.next);
       $('next-label').textContent=NEXT[sel.next];$('ack-title').textContent=NEXT[sel.next]+'の じかん';
+      $('parent-hint-quote').textContent='「ぜんぶ なくなったら、'+NEXT[sel.next]+'しようね」';
       $('pause-button').hidden=!holdRequired();$('pause-button').textContent=mode==='paused'?'つづきから はじめる':'いったん とめる';
       $('parent-gate').dataset.instant='false';
       $('gate-label').textContent='おとなの操作 · 長押し';

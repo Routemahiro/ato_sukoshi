@@ -34,7 +34,7 @@ button svg { pointer-events: none; }
 .text-button { min-height: 44px; background: transparent; padding: 8px 10px; border-radius: 14px; font-size: 13px; font-weight: 650; }
 .text-button:hover { background: #e9eee3; }
 .header-actions { display: flex; align-items: center; gap: 8px; }
-main { max-width: 1232px; margin: 0 auto; padding: 20px 40px 20px; }
+main { max-width: 1232px; margin: 0 auto; padding: 20px 40px 32px; }
 .app-grid { display: grid; grid-template-columns: 312px minmax(0,1fr); gap: 24px; align-items: start; }
 .settings { padding: 24px; background: #fffefb; border: 1px solid var(--line); border-radius: 26px; }
 .panel-heading { font-size: 11px; font-weight: 750; letter-spacing: .12em; color: #788173; margin: 0 0 23px; }
@@ -123,8 +123,6 @@ input[type=checkbox] { width: 18px; height: 18px; accent-color: var(--green); }
 .parent-gate span { position: relative; font-size: 11px; }
 .audio-restore { display: flex; align-items: center; justify-content: center; gap: 10px; padding: 8px 14px; margin: 0 0 12px; border: 1px solid #dacaab; background: #fff5df; border-radius: 13px; font-size: 12px; }
 .audio-restore button { min-height: 36px; border-radius: 8px; padding: 6px 10px; color: #694b20; background: #f0dfb9; }
-.footer { display: flex; justify-content: space-between; gap: 12px; max-width: 1232px; padding: 12px 40px 25px; margin: 0 auto; color: #75816e; font-size: 10px; }
-.footer p { margin: 0; }
 body:not([data-mode=idle]) .setup-only { display: none !important; }
 body:not([data-mode=idle]) main { max-width: 1030px; padding-top: 23px; }
 body:not([data-mode=idle]) .app-grid { display: block; }
@@ -164,7 +162,6 @@ dialog p { font-size: 13px; line-height: 1.9; }
  .app-grid { grid-template-columns: 282px minmax(0,1fr); gap: 18px; }
  .settings { padding: 19px; }
  .app-header { padding-inline: 24px; } main { padding-inline: 24px; }
- .footer { padding-inline: 24px; }
  .stage-top { padding: 20px 20px 0; }
  .stage-copy h2 { font-size: 18px; }
  .stage-copy p { font-size: 10px; }
@@ -181,7 +178,7 @@ dialog p { font-size: 13px; line-height: 1.9; }
  .brand-name { font-size: 20px; }
  .brand-caption { font-size: 8px; }
  .header-actions { gap: 0; }
- main { padding: 16px 16px 12px; }
+ main { padding: 16px 16px 28px; }
  .app-grid { display: flex; flex-direction: column; gap: 18px; }
  .settings { width: 100%; order: 1; padding: 19px 22px; }
  .panel-heading { display: none; }
@@ -206,7 +203,6 @@ dialog p { font-size: 13px; line-height: 1.9; }
  .next-choice { min-height: 68px; }
  .next-choice span { font-size: 11px; }
  .next-choice svg { height: 30px; width: 30px; }
- .footer { flex-direction: column; text-align: center; gap: 5px; padding: 14px 20px 25px; font-size: 9px; }
  body:not([data-mode=idle]) .app-header { padding-top: 13px; }
  body:not([data-mode=idle]) main { padding: 15px 12px; }
  body:not([data-mode=idle]) .stage { min-height: min(610px,calc(100svh - 182px)); }
@@ -592,7 +588,7 @@ body[data-mode=finished] .device-status, body[data-mode=acknowledged] .device-st
         <div class="finish-panel" id="finish-panel" hidden><button id="ack-button" class="primary" type="button">つぎへ いこう <span aria-hidden="true">→</span></button></div>
         <div class="ack-panel" id="ack-panel" hidden><h3 id="ack-title">おかたづけの じかん</h3><p>いっしょに はじめよう。</p></div>
       </div>
-      <p class="parent-hint setup-only">はじめる前に、<strong>「ぜんぶ なくなったら、おしまいね」</strong>と一緒に確認。</p>
+      <p class="parent-hint setup-only">はじめる前に、<strong id="parent-hint-quote">「ぜんぶ なくなったら、おかたづけしようね」</strong>と一緒に確認。</p>
       <div class="parent-bar" id="parent-bar" hidden>
         <div class="device-status"><span id="wake-status">画面は開いたままで</span><br><span id="audio-status">終了音：入</span></div>
         <button type="button" id="parent-gate" class="parent-gate" aria-describedby="gate-description"><span id="gate-label">おとなの操作 · 長押し</span></button>
@@ -608,7 +604,6 @@ body[data-mode=finished] .device-status, body[data-mode=acknowledged] .device-st
     </section>
   </div>
 </main>
-<footer class="footer setup-only"><p>広告なし・登録なし・外部の解析ツールなし</p><p>おわりを知らせる、親子のための小さな道具。</p></footer>
 <dialog id="help-dialog" aria-labelledby="help-title">
   <div class="dialog-head"><h2 id="help-title">いっしょに使う、3つのこと</h2><button type="button" class="close-dialog" data-close="help-dialog" aria-label="使いかたを閉じる">×</button></div>
   <h3>はじめる前に、終わりを伝える</h3><p id="help-start-text">「どんぐりがなくなったら、おかたづけしようね」。残りの時間と、次にすることを一緒に確かめてから始めます。</p>
@@ -1095,6 +1090,7 @@ body[data-mode=finished] .device-status, body[data-mode=acknowledged] .device-st
       else{title.replaceChildren(document.createTextNode(ch.snack+'が なくなったら'),document.createElement('br'),document.createTextNode('おしまい。'));sub.textContent=mode==='idle'?ch.label+'と、つぎのじゅんびを しよう。':'10びょうごとに、ひとつ パクパク。';}
       $('next-icon').setAttribute('href','#i-'+sel.next);
       $('next-label').textContent=NEXT[sel.next];$('ack-title').textContent=NEXT[sel.next]+'の じかん';
+      $('parent-hint-quote').textContent='「ぜんぶ なくなったら、'+NEXT[sel.next]+'しようね」';
       $('pause-button').hidden=!holdRequired();$('pause-button').textContent=mode==='paused'?'つづきから はじめる':'いったん とめる';
       $('parent-gate').dataset.instant='false';
       $('gate-label').textContent='おとなの操作 · 長押し';
