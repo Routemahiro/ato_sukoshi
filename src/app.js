@@ -105,7 +105,6 @@
   }
   function applyCharacterCopy(){
     const c=character();
-    $('intro-lead').textContent=c.snack+'が なくなったら、おしまい。つぎにすることも、一緒に決めておこう。';
     $('snack-timing-note').textContent=c.snack+'1こで10秒。最後の端数は、残りの秒数ぶんです。10分を超えると、60個ずつ表示します。';
     $('help-start-text').textContent='「'+c.snack+'がなくなったら、おかたづけしようね」。残りの時間と、次にすることを一緒に確かめてから始めます。';
     $('help-munch-text').textContent='並んだ'+c.snack+'を1こずつ手元に運んで食べます。食べ終わるまでが10秒です。最後に10秒未満が残る設定では、最後の1こがその秒数ぶんになります。10分を超える設定では60個ずつ表示し、続きの個数も表示します。';
@@ -440,7 +439,6 @@
     }else if(timer.status==='paused'){timer.resume();unlockAudio(true);requestWake();announce('つづきから始めました。');}
     saveSession();render(true);$('parent-dialog').close();
   });
-  $('help-button').addEventListener('click',()=>$('help-dialog').showModal());
   document.querySelectorAll('[data-close]').forEach(b=>b.addEventListener('click',()=>$(b.dataset.close).close()));
   $('clear-settings').addEventListener('click',()=>{
     saveStorage('localStorage',PREF,null);saveStorage('localStorage',OLD_PREF,null);saveStorage('sessionStorage',SESSION,null);

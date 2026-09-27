@@ -19,3 +19,17 @@ test('short remainder keeps its deadline',()=>{assert.equal(snackState(11000,100
 test('long timer uses next tray',()=>assert.equal(snackState(3600000,3000000).pageStart,60));
 test('nine visibility choices remain separate from time selection',()=>{const h=read('index.html');assert.equal((h.match(/data-visible-preset="/g)||[]).length,9);assert.ok(h.includes('id="custom-minutes"'));assert.ok(!h.includes('id="current-activity"'));});
 test('both direct completion buttons exist',()=>{const h=read('index.html');assert.ok(h.includes('id="finished-restart-button"'));assert.ok(h.includes('id="finished-reset-button"'));});
+test('header pill, how-to link, and hero copy are absent',()=>{
+  const h=read('index.html');
+  const js=read('src/app.js');
+  assert.equal(h.includes('登録しないで'),false);
+  assert.equal(h.includes('id="help-button"'),false);
+  assert.equal(h.includes('おわりを、いっしょに見つけよう'),false);
+  assert.equal(h.includes('id="intro-lead"'),false);
+  assert.equal(h.includes('class="intro'),false);
+  assert.equal(js.includes('intro-lead'),false);
+  assert.equal(js.includes('help-button'),false);
+  assert.ok(h.includes('id="fullscreen-button"'));
+  assert.ok(h.includes('<h1 class="brand-name">あとすこし</h1>'));
+  assert.equal((h.match(/<h1\b/g)||[]).length,1);
+});
