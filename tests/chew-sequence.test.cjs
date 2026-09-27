@@ -1,36 +1,41 @@
 const test=require('node:test'),assert=require('node:assert/strict'),crypto=require('node:crypto');
-const {snackState,chewClockSubframe,CHEW_SOUND_COUNT}=require('../src/snack-core.js');
+const {snackState,CHEW_SOUND_COUNT}=require('../src/snack-core.js');
 
 function at(ms,character,duration=10000){return snackState(duration,duration-ms,character);}
 
-test('elephant chew boundaries',()=>{
-  assert.equal(at(2000,'elephant').phase,'chew');
+test('elephant chew uses the squirrel 9-step timeline',()=>{
+  const slot=6000/9;
+  for(let i=0;i<9;i++){
+    const mid=2000+(i+.5)*slot;
+    const elephant=at(mid,'elephant');
+    const squirrel=at(mid);
+    assert.equal(elephant.phase,'chew','slot '+i);
+    assert.equal(elephant.frame,i,'slot '+i);
+    assert.equal(elephant.subframe,i,'slot '+i);
+    assert.deepEqual(elephant,squirrel,'slot '+i);
+  }
   assert.equal(at(2000,'elephant').frame,0);
-  const openAt=2000+2*(6000/36);
-  assert.equal(at(Math.floor(openAt),'elephant').frame,0);
-  assert.equal(at(Math.ceil(openAt),'elephant').frame,1);
-  assert.equal(at(3500,'elephant').phase,'chew');
+  assert.equal(at(2667,'elephant').frame,1);
   assert.equal(at(3500,'elephant').frame,2);
   assert.equal(at(7999,'elephant').phase,'chew');
-  assert.equal(at(7999,'elephant').frame,7);
-  assert.equal(at(8000,'elephant').phase,'settle');
-  assert.equal(at(8000,'elephant').frame,8);
+  assert.equal(at(7999,'elephant').frame,8);
+  const settle=at(8000,'elephant');
+  assert.equal(settle.phase,'settle');
+  assert.equal(settle.frame,8);
+  assert.deepEqual(settle,at(8000));
   const done=snackState(10000,0,'elephant');
   assert.equal(done.phase,'complete');
   assert.equal(done.frame,8);
+  assert.deepEqual(done,snackState(10000,0));
 });
 
-test('elephant holds closed-closed-open three times per stage',()=>{
-  const pattern=[];
-  for(let k=0;k<4;k++) for(let n=0;n<3;n++) pattern.push(2*k,2*k,2*k+1);
-  assert.equal(pattern.length,36);
-  const slot=6000/36;
-  for(let i=0;i<36;i++){
-    const mid=2000+(i+.5)*slot;
-    const s=at(mid,'elephant');
-    assert.equal(s.phase,'chew','slot '+i);
-    assert.equal(s.frame,pattern[i],'slot '+i);
-    assert.equal(s.subframe,i,'slot '+i);
+test('elephant frame holds for a full squirrel slot',()=>{
+  const slot=6000/9;
+  for(let i=0;i<9;i++){
+    const start=Math.ceil(2000+i*slot);
+    const end=Math.floor(2000+(i+1)*slot)-1;
+    assert.equal(at(start,'elephant').frame,i,'start '+start);
+    assert.equal(at(end,'elephant').frame,i,'end '+end);
   }
 });
 
@@ -61,17 +66,8 @@ test('squirrel snackState matches the pre-change pin',()=>{
       let value;
       try{value=snackState(d,remaining);}
       catch(e){value={error:e.name,message:e.message};}
-      const named=snackState(d,remaining,'squirrel');
-      assert.deepEqual(named,value);
-      if(!value.error){
-        if(value.phase==='chew') assert.equal(chewClockSubframe(value.cycleProgress),value.subframe);
-        const elephant=snackState(d,remaining,'elephant');
-        for(const key of Object.keys(value)){
-          if(key==='frame'||key==='subframe') continue;
-          assert.equal(elephant[key],value[key],key+' @ '+d+'/'+remaining);
-        }
-        if(value.phase!=='chew') assert.equal(elephant.frame,value.frame);
-      }
+      assert.deepEqual(snackState(d,remaining,'squirrel'),value);
+      if(!value.error) assert.deepEqual(snackState(d,remaining,'elephant'),value);
       samples.push({d,remaining,value});
     }
   }
