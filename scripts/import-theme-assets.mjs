@@ -4,9 +4,30 @@ import { fileURLToPath } from 'node:url';
 import vm from 'node:vm';
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
-const upload = resolve(root, 'ato-sukoshi-assets/elephant/upload');
-const nextGen = resolve(root, 'ato-sukoshi-assets/elephant/next-gen');
 const assetsPath = resolve(root, 'src/assets.js');
+const scenes = ['tidy', 'meal', 'bath', 'out', 'brush', 'sleep'];
+const themes = [
+  {
+    upload: resolve(root, 'ato-sukoshi-assets/elephant/upload'),
+    nextGen: resolve(root, 'ato-sukoshi-assets/elephant/next-gen'),
+    uploadNames: [
+      'apple.svg',
+      'elephant-ready.webp',
+      ...Array.from({ length: 9 }, (_, i) => `elephant-chew-${i}.webp`),
+    ],
+    nextNames: scenes.map((scene) => `elephant-next-${scene}.webp`),
+  },
+  {
+    upload: resolve(root, 'ato-sukoshi-assets/mouse/upload'),
+    nextGen: resolve(root, 'ato-sukoshi-assets/mouse/next-gen'),
+    uploadNames: [
+      'biscuit.svg',
+      'mouse-ready.webp',
+      ...Array.from({ length: 9 }, (_, i) => `mouse-chew-${i}.webp`),
+    ],
+    nextNames: scenes.map((scene) => `mouse-next-${scene}.webp`),
+  },
+];
 
 const mime = {
   '.webp': 'image/webp',
@@ -32,24 +53,17 @@ vm.runInNewContext(readFileSync(assetsPath, 'utf8'), sandbox, { timeout: 2000 })
 const assets = { ...sandbox.window.TimerAssets };
 
 const imported = [];
-const chewAdditions = [
-  'apple.svg',
-  'elephant-ready.webp',
-  ...Array.from({ length: 9 }, (_, i) => `elephant-chew-${i}.webp`),
-];
-for (const name of chewAdditions) {
-  const filePath = resolve(upload, name);
-  if (!existsSync(filePath)) continue;
-  mergeAsset(assets, name, filePath);
-  imported.push(name);
-}
-
-const nextScenes = ['tidy', 'meal', 'bath', 'out', 'brush', 'sleep'].map(
-  (scene) => `elephant-next-${scene}.webp`,
-);
-for (const name of nextScenes) {
-  mergeAsset(assets, name, resolve(nextGen, name));
-  imported.push(name);
+for (const theme of themes) {
+  for (const name of theme.uploadNames) {
+    const filePath = resolve(theme.upload, name);
+    if (!existsSync(filePath)) continue;
+    mergeAsset(assets, name, filePath);
+    imported.push(name);
+  }
+  for (const name of theme.nextNames) {
+    mergeAsset(assets, name, resolve(theme.nextGen, name));
+    imported.push(name);
+  }
 }
 
 const keys = Object.keys(assets).sort();
