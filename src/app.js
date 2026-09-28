@@ -13,11 +13,13 @@
   const NEXT={tidy:'おかたづけ',meal:'ごはん',bath:'おふろ',out:'おでかけ',brush:'はみがき',sleep:'ねんね'};
   const SCENE_ALT={
     squirrel:{tidy:'おもちゃを片付けるりすさん',meal:'ごはんを食べるりすさん',bath:'おふろに入るりすさん',out:'リュックを背負って出かけるりすさん',brush:'歯みがきするりすさん',sleep:'おふとんで眠るりすさん'},
-    elephant:{tidy:'おもちゃを片付けるぞうさん',meal:'ごはんを食べるぞうさん',bath:'おふろに入るぞうさん',out:'リュックを背負って出かけるぞうさん',brush:'歯みがきするぞうさん',sleep:'おふとんで眠るぞうさん'}
+    elephant:{tidy:'おもちゃを片付けるぞうさん',meal:'ごはんを食べるぞうさん',bath:'おふろに入るぞうさん',out:'リュックを背負って出かけるぞうさん',brush:'歯みがきするぞうさん',sleep:'おふとんで眠るぞうさん'},
+    mouse:{tidy:'おもちゃを片付けるねずみさん',meal:'ごはんを食べるねずみさん',bath:'おふろに入るねずみさん',out:'リュックを背負って出かけるねずみさん',brush:'歯みがきするねずみさん',sleep:'おふとんで眠るねずみさん'}
   };
   const CHARACTERS=Object.freeze({
     squirrel:{id:'squirrel',label:'りすさん',snack:'どんぐり',ready:'squirrel-ready.webp',chew:i=>'chew-'+i+'.webp',snackIcon:'acorn.svg',nextScene:k=>'next-'+k+'.webp'},
-    elephant:{id:'elephant',label:'ぞうさん',snack:'りんご',ready:'elephant-ready.webp',chew:i=>'elephant-chew-'+i+'.webp',snackIcon:'apple.svg',nextScene:k=>'elephant-next-'+k+'.webp'}
+    elephant:{id:'elephant',label:'ぞうさん',snack:'りんご',ready:'elephant-ready.webp',chew:i=>'elephant-chew-'+i+'.webp',snackIcon:'apple.svg',nextScene:k=>'elephant-next-'+k+'.webp'},
+    mouse:{id:'mouse',label:'ねずみさん',snack:'ビスケット',ready:'mouse-ready.webp',chew:i=>'mouse-chew-'+i+'.webp',snackIcon:'biscuit.svg',nextScene:k=>'mouse-next-'+k+'.webp',land:[.639,.613]}
   });
   const PRESET_SECONDS=Object.freeze([60,180,300,600,900,1200,1800,2700,3600]);
   const DEFAULT_VISIBLE_PRESETS=Object.freeze([60,180,300,600]);
@@ -216,7 +218,8 @@
     const src=item.getBoundingClientRect(),box=$('snack-theater').getBoundingClientRect(),sprite=$('squirrel-pose').getBoundingClientRect();
     const t=s.transfer,e=t*t*(3-2*t);
     const startX=src.left+src.width/2-box.left,startY=src.top+src.height/2-box.top;
-    const endX=sprite.left+sprite.width*.846-box.left,endY=sprite.top+sprite.height*.612-box.top;
+    const land=character().land||[.846,.612];
+    const endX=sprite.left+sprite.width*land[0]-box.left,endY=sprite.top+sprite.height*land[1]-box.top;
     const targetW=sprite.width*.182,flyW=src.width+(targetW-src.width)*e,flyH=flyW*1.12;
     const x=startX+(endX-startX)*e,y=startY+(endY-startY)*e-Math.sin(Math.PI*t)*Math.min(30,box.width*.04);
     const fly=$('flying-acorn');fly.style.width=flyW+'px';fly.style.height=flyH+'px';
