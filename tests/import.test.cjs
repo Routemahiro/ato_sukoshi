@@ -68,7 +68,22 @@ test('setup hint names the selected next activity',()=>{
   assert.equal(h.includes('おしまいね'),false);
   assert.equal(h.includes('広告なし'),false);
   assert.equal(h.includes('親子のための小さな道具'),false);
-  assert.equal(h.includes('<footer'),false);
+});
+test('inspiration credit follows main and links only the first app name',()=>{
+  const h=read('index.html');
+  const css=read('src/styles.css');
+  const footerAt=h.indexOf('<footer class="inspiration-credit">');
+  assert.ok(footerAt>h.indexOf('</main>'));
+  assert.equal(h.indexOf('<footer'),footerAt);
+  assert.equal(h.indexOf('<footer',footerAt+1),-1);
+  const footer=h.slice(footerAt,h.indexOf('</footer>',footerAt));
+  assert.ok(footer.includes('「あとすこし」は、株式会社LITALICOのiPhoneアプリ「<a href="https://apps.apple.com/jp/app/%E3%81%AD%E3%81%9A%E3%81%BF%E3%82%BF%E3%82%A4%E3%83%9E%E3%83%BC/id1235452961" target="_blank" rel="noopener noreferrer">ねずみタイマー</a>」から着想を得て、個人で作ったタイマーです。'));
+  assert.ok(footer.includes('ぜひ「ねずみタイマー」もDLしてみてください。'));
+  assert.equal((footer.match(/ねずみタイマー/g)||[]).length,2);
+  assert.equal((footer.match(/<a\b/g)||[]).length,1);
+  assert.ok(h.indexOf('class="stage"')<h.indexOf('</main>'));
+  assert.ok(css.includes('.inspiration-credit { max-width: 840px; margin: 0 auto; padding: 8px 40px calc(22px + env(safe-area-inset-bottom, 0px)); color: var(--muted); font-size: 11px; line-height: 1.85; text-align: center; }'));
+  assert.equal(css.includes('.inspiration-credit { position:'),false);
 });
 test('header pill, how-to link, and hero copy are absent',()=>{
   const h=read('index.html');

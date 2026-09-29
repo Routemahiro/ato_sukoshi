@@ -24,6 +24,10 @@ button svg { pointer-events: none; }
 .text-button:hover { background: #e9eee3; }
 .header-actions { display: flex; align-items: center; gap: 8px; }
 main { max-width: 840px; margin: 0 auto; padding: 20px 40px 32px; }
+.inspiration-credit { max-width: 840px; margin: 0 auto; padding: 8px 40px calc(22px + env(safe-area-inset-bottom, 0px)); color: var(--muted); font-size: 11px; line-height: 1.85; text-align: center; }
+.inspiration-credit p { margin: 0; }
+.inspiration-credit p + p { margin-top: .45em; }
+.inspiration-credit a { color: inherit; }
 .stage-shell { min-width: 0; }
 fieldset { padding: 0; margin: 0; border: 0; min-width: 0; }
 fieldset + fieldset { margin-top: 24px; }
@@ -129,6 +133,7 @@ dialog p { font-size: 13px; line-height: 1.9; }
 }
 @media (max-width: 920px) {
  .app-header { padding-inline: 24px; } main { padding-inline: 24px; }
+ .inspiration-credit { padding-inline: 24px; }
  .stage-top { padding: 20px 20px 0; }
  .stage-copy h2 { font-size: 18px; }
  .stage-copy p { font-size: 10px; }
@@ -146,6 +151,7 @@ dialog p { font-size: 13px; line-height: 1.9; }
  .brand-caption { font-size: 8px; }
  .header-actions { gap: 0; }
  main { padding: 16px 16px 28px; }
+ .inspiration-credit { padding: 4px 16px calc(20px + env(safe-area-inset-bottom, 0px)); font-size: 10px; }
  fieldset + fieldset { margin-top: 16px; }
  .stage-shell { width: 100%; }
  .stage { border-radius: 25px; }
@@ -167,6 +173,7 @@ dialog p { font-size: 13px; line-height: 1.9; }
  .next-choice svg { height: 30px; width: 30px; }
  body:not([data-mode=idle]) .app-header { padding-top: 13px; }
  body:not([data-mode=idle]) main { padding: 15px 12px; }
+ body:not([data-mode=idle]) .inspiration-credit { padding-inline: 12px; }
  body:not([data-mode=idle]) .stage { min-height: min(610px,calc(100svh - 182px)); }
  body:not([data-mode=idle]) .stage-copy { padding-top: 23px; }
  body:not([data-mode=idle]) .stage-copy h2 { font-size: 23px; }

@@ -13,12 +13,13 @@ function at(source, needle) {
   return index;
 }
 
-test('release version is 9.3.0', () => {
-  assert.ok(html.includes('content="9.3.0"'));
+test('release version is 9.4.0', () => {
+  assert.ok(html.includes('content="9.4.0"'));
   const pkg = JSON.parse(fs.readFileSync(path.join(root, 'package.json'), 'utf8'));
-  assert.equal(pkg.version, '9.3.0');
+  assert.equal(pkg.version, '9.4.0');
   const notes = fs.readFileSync(path.join(root, 'CHANGELOG.md'), 'utf8');
-  assert.ok(notes.includes('## 9.3.0'));
+  assert.ok(notes.includes('## 9.4.0'));
+  assert.equal(notes.includes('## 9.3.0'), true);
   assert.equal(notes.includes('## 9.2.0'), true);
   assert.equal(notes.includes('## 9.1.0'), true);
 });

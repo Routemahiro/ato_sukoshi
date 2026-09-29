@@ -7,7 +7,7 @@
 <meta name="description" content="子どもの「あとすこし」を、減っていくどんぐりで見える形に。終わりと次の行動をいっしょに確かめる、登録不要のやさしいWebタイマー。">
 <meta name="referrer" content="no-referrer">
 <title>あとすこし — おしまいが見えるタイマー</title>
-<meta name="application-version" content="9.3.0">
+<meta name="application-version" content="9.4.0">
 
 <style>:root {
   --ink: #354e45; --muted: #65766b; --green: #355e4f; --green-hover: #294b3f;
@@ -35,6 +35,10 @@ button svg { pointer-events: none; }
 .text-button:hover { background: #e9eee3; }
 .header-actions { display: flex; align-items: center; gap: 8px; }
 main { max-width: 840px; margin: 0 auto; padding: 20px 40px 32px; }
+.inspiration-credit { max-width: 840px; margin: 0 auto; padding: 8px 40px calc(22px + env(safe-area-inset-bottom, 0px)); color: var(--muted); font-size: 11px; line-height: 1.85; text-align: center; }
+.inspiration-credit p { margin: 0; }
+.inspiration-credit p + p { margin-top: .45em; }
+.inspiration-credit a { color: inherit; }
 .stage-shell { min-width: 0; }
 fieldset { padding: 0; margin: 0; border: 0; min-width: 0; }
 fieldset + fieldset { margin-top: 24px; }
@@ -140,6 +144,7 @@ dialog p { font-size: 13px; line-height: 1.9; }
 }
 @media (max-width: 920px) {
  .app-header { padding-inline: 24px; } main { padding-inline: 24px; }
+ .inspiration-credit { padding-inline: 24px; }
  .stage-top { padding: 20px 20px 0; }
  .stage-copy h2 { font-size: 18px; }
  .stage-copy p { font-size: 10px; }
@@ -157,6 +162,7 @@ dialog p { font-size: 13px; line-height: 1.9; }
  .brand-caption { font-size: 8px; }
  .header-actions { gap: 0; }
  main { padding: 16px 16px 28px; }
+ .inspiration-credit { padding: 4px 16px calc(20px + env(safe-area-inset-bottom, 0px)); font-size: 10px; }
  fieldset + fieldset { margin-top: 16px; }
  .stage-shell { width: 100%; }
  .stage { border-radius: 25px; }
@@ -178,6 +184,7 @@ dialog p { font-size: 13px; line-height: 1.9; }
  .next-choice svg { height: 30px; width: 30px; }
  body:not([data-mode=idle]) .app-header { padding-top: 13px; }
  body:not([data-mode=idle]) main { padding: 15px 12px; }
+ body:not([data-mode=idle]) .inspiration-credit { padding-inline: 12px; }
  body:not([data-mode=idle]) .stage { min-height: min(610px,calc(100svh - 182px)); }
  body:not([data-mode=idle]) .stage-copy { padding-top: 23px; }
  body:not([data-mode=idle]) .stage-copy h2 { font-size: 23px; }
@@ -565,6 +572,10 @@ body[data-mode=finished] .device-status { display: none; }
       </div>
     </section>
 </main>
+<footer class="inspiration-credit">
+  <p>「あとすこし」は、株式会社LITALICOのiPhoneアプリ「<a href="https://apps.apple.com/jp/app/%E3%81%AD%E3%81%9A%E3%81%BF%E3%82%BF%E3%82%A4%E3%83%9E%E3%83%BC/id1235452961" target="_blank" rel="noopener noreferrer">ねずみタイマー</a>」から着想を得て、個人で作ったタイマーです。</p>
+  <p>ぜひ「ねずみタイマー」もDLしてみてください。</p>
+</footer>
 <dialog id="parent-dialog" aria-labelledby="parent-title">
   <div class="dialog-head"><h2 id="parent-title">おとなの操作</h2><button type="button" class="close-dialog" data-close="parent-dialog" aria-label="こどもの画面に戻る">×</button></div>
   <p id="parent-timer-summary">残り 05:00</p>
