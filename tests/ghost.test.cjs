@@ -132,7 +132,7 @@ test('ghost is registered with doughnut landing and a per-item flourish',()=>{
   assert.deepEqual({...g.flourish},{frame:'ghost-lick.webp',holdMs:1200,showMs:800,chance:.5});
   for(const alt of ['おもちゃを片付けるおばけさん','ごはんを食べるおばけさん','おふろに入るおばけさん','リュックを背負って出かけるおばけさん','歯みがきするおばけさん','おふとんで眠るおばけさん'])assert.ok(js.includes(alt),alt);
   assert.deepEqual(Object.keys(chars),['squirrel','elephant','mouse','ghost']);
-  assert.ok(html.includes('aria-label="前のなかま"')&&html.includes('aria-label="次のなかま"'));
+  assert.ok(html.includes('aria-label="まえの なかま"')&&html.includes('aria-label="つぎの なかま"'));
   assert.equal(html.includes('なかまを えらぶ'),false);
   assert.ok(html.includes('id="finish-flourish"'));
   assert.ok(js.includes('character().landSize||.182'));

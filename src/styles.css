@@ -220,12 +220,21 @@ dialog p { font-size: 13px; line-height: 1.9; }
 }
 
 /* v2: illustrated eating stage. The grid item and the carried acorn are one item. */
-.snack-theater { position: relative; display: grid; grid-template-columns: minmax(0,.92fr) minmax(0,1.15fr); align-items: center; gap: 12px; padding: 8px 28px 26px 13px; min-height: 300px; isolation: isolate; }
+.snack-theater { position: relative; padding: 8px 28px 26px 13px; min-height: 300px; isolation: isolate; }
+.stage-track { position: relative; overflow: hidden; }
+.stage-track, .stage-pair { display: grid; grid-template-columns: minmax(0,.92fr) minmax(0,1.15fr); align-items: center; gap: 12px; }
+.stage-pair { grid-column: 1 / -1; grid-row: 1; position: relative; z-index: 1; }
+.stage-pair-out { position: absolute; inset: 0; z-index: 0; margin: 0; pointer-events: none; }
+.character-switch { grid-column: 1; grid-row: 1; z-index: 3; display: grid; grid-template-columns: 1fr 1fr; align-self: stretch; min-width: 0; }
+.character-half { position: relative; height: 100%; min-width: 0; padding: 0; border: 0; border-radius: 0; background: none; box-shadow: none; color: var(--green); }
+.character-half:hover, .character-half:active { background: none; box-shadow: none; }
+.character-half:focus-visible { outline: none; }
+.character-half:focus-visible .character-chevron { outline: 3px solid #976729; outline-offset: 3px; border-radius: 8px; }
+.character-chevron { position: absolute; top: 2px; width: 32px; height: 32px; display: block; }
+#character-prev .character-chevron { left: 2px; }
+#character-next .character-chevron { right: 2px; }
+body[data-mode=idle] .squirrel-space { padding-top: 36px; }
 .squirrel-space { width: 100%; align-self: center; position: relative; z-index: 2; }
-.character-arrow { position: absolute; top: auto; bottom: 12%; z-index: 5; width: 36px; height: 44px; padding: 0; display: inline-flex; align-items: center; justify-content: center; border-radius: 999px; background: #f8fbf4ee; color: #355e4f; border: 1px solid #d3e0cb; }
-#character-prev { left: 0; }
-#character-next { right: 0; }
-.character-arrow:hover { background: #fff; }
 body[data-mode=idle] .stage-top { display: block; }
 body[data-mode=idle] .next-strip { display: block; margin: 0 16px 6px; padding: 12px 12px 14px; }
 .next-setup-label { margin: 0 0 8px; text-align: center; font-size: 12px; font-weight: 750; letter-spacing: .08em; color: #677861; }
@@ -270,7 +279,8 @@ body:not([data-mode=idle]) .next-strip { margin-top: 0; }
 .stage-settings .sound-row { margin-top: 12px; }
 body[data-mode=finished] #remaining-caption { visibility: hidden; }
 @media (max-width: 700px) {
- .snack-theater { min-height: 230px; padding: 4px 16px 22px 5px; gap: 6px; grid-template-columns: minmax(0,.92fr) minmax(0,1.10fr); }
+ .snack-theater { min-height: 230px; padding: 4px 16px 22px 5px; }
+ .stage-track, .stage-pair { gap: 6px; grid-template-columns: minmax(0,.92fr) minmax(0,1.10fr); }
  body:not([data-mode=idle]) .snack-theater { min-height: 245px; padding: 6px 16px 20px 5px; }
  .snack-theater .acorn-area, body:not([data-mode=idle]) .snack-theater .acorn-area { padding: 12px 8px; border-radius: 18px; }
  .snack-theater .acorns { gap: 5px 3px; }

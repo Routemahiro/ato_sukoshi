@@ -5,7 +5,7 @@
   'use strict';
   const {Countdown,formatTime}=window.Atosukoshi;
   const {snackState,CHEW_FRAME_COUNT,createFlourishPicker,finishFlourish}=window.AtosukoshiSnacks;
-  const {sanitizePreferences,applyVisiblePresets,cycleCharacter,PREF_KEY,LEGACY_PREF_KEYS}=window.AtosukoshiStage;
+  const {sanitizePreferences,applyVisiblePresets,createSlideState,reduceCharacterSlide,settleCharacterSlide,abortCharacterSlide,PREF_KEY,LEGACY_PREF_KEYS}=window.AtosukoshiStage;
   const A=window.TimerAssets;
   const $=id=>document.getElementById(id);
   const SESSION='atosukoshi.timer.v1';
@@ -34,6 +34,7 @@
   let lastSoundIndex=-1,lastSoundPhase='',lastMunchCue='',wake=null,wakePending=false;
   let gateTimer=null,gateStarted=false;
   let flourishPick=createFlourishPicker();
+  let slide=createSlideState('squirrel'),slideJob=null;
 
   function toast(text) {
     $('toast').textContent=text; $('toast').hidden=false; clearTimeout(toastTimer);
@@ -341,13 +342,88 @@
     announce(moved?timeWords(prefs.seconds*1000)+'に合わせました。':'使える時間を更新しました。');
   }));
   document.querySelectorAll('[data-next]').forEach(b=>b.addEventListener('click',()=>{if(timer.status!=='idle')return;prefs.next=b.dataset.next;savePrefs();reflectPrefs();}));
-  function selectCharacter(id){
-    if(timer.status!=='idle'||id===prefs.character||!own(CHARACTERS,id))return;
-    prefs.character=id;sceneKey='';savePrefs();applyCharacterAssets();render(true);
-    announce(character().label+'に かえました。');
+  function cloneOutgoingPair(pair){
+    const outgoing=pair.cloneNode(true);
+    outgoing.removeAttribute('id');
+    // Duplicate ids would make later asset updates hit the outgoing snapshot.
+    outgoing.querySelectorAll('[id]').forEach(node=>node.removeAttribute('id'));
+    outgoing.classList.add('stage-pair-out');
+    outgoing.setAttribute('aria-hidden','true');
+    return outgoing;
   }
-  $('character-prev').addEventListener('click',()=>selectCharacter(cycleCharacter(prefs.character,-1)));
-  $('character-next').addEventListener('click',()=>selectCharacter(cycleCharacter(prefs.character,1)));
+  function clearSlideMotion(){
+    const job=slideJob;
+    if(!job)return;
+    slideJob=null;
+    job.cancelled=true;
+    for(const anim of job.anims){try{anim.cancel();}catch{}}
+    if(job.outgoing.isConnected)job.outgoing.remove();
+    job.pair.style.transform='';
+  }
+  function snapSlide(){
+    if(slide.phase!=='sliding')return;
+    clearSlideMotion();
+    const snapped=abortCharacterSlide(slide);
+    if(snapped.action==='snap')slide=snapped.state;
+  }
+  function shiftCharacter(delta){
+    if(timer.status!=='idle')return;
+    const step=reduceCharacterSlide(slide,delta);
+    if(step.action==='none')return;
+    slide=step.state;
+    clearSlideMotion();
+    const pair=$('stage-pair');
+    const outgoing=reduced.matches?null:cloneOutgoingPair(pair);
+    if(outgoing)$('stage-track').insertBefore(outgoing,pair);
+    prefs.character=slide.showing;
+    sceneKey='';
+    savePrefs();
+    applyCharacterAssets();
+    render(true);
+    announce(character().label+'に かえました。');
+    if(!outgoing||typeof outgoing.animate!=='function'){
+      if(outgoing)outgoing.remove();
+      const settled=settleCharacterSlide(slide,slide.generation);
+      if(settled.action==='clear')slide=settled.state;
+      return;
+    }
+    const distance=pair.getBoundingClientRect().width;
+    const dir=slide.direction;
+    const gen=slide.generation;
+    pair.style.transform=`translate3d(${dir*distance}px,0,0)`;
+    const timing={duration:step.motion.durationMs,easing:step.motion.easing,fill:'forwards'};
+    const outAnim=outgoing.animate(
+      [{transform:'translate3d(0,0,0)'},{transform:`translate3d(${-dir*distance}px,0,0)`}],
+      timing
+    );
+    const inAnim=pair.animate(
+      [{transform:`translate3d(${dir*distance}px,0,0)`},{transform:'translate3d(0,0,0)'}],
+      timing
+    );
+    const job={gen,anims:[outAnim,inAnim],outgoing,pair,cancelled:false};
+    slideJob=job;
+    Promise.all(job.anims.map(anim=>anim.finished)).then(()=>{
+      if(job.cancelled||slide.generation!==gen)return;
+      slideJob=null;
+      outgoing.remove();
+      inAnim.cancel();
+      outAnim.cancel();
+      pair.style.transform='';
+      const settled=settleCharacterSlide(slide,gen);
+      if(settled.action==='clear')slide=settled.state;
+    },()=>{});
+  }
+  $('character-prev').addEventListener('click',()=>shiftCharacter(-1));
+  $('character-next').addEventListener('click',()=>shiftCharacter(1));
+  $('timer-stage').addEventListener('keydown',event=>{
+    if(timer.status!=='idle')return;
+    if(event.key!=='ArrowLeft'&&event.key!=='ArrowRight')return;
+    if(event.altKey||event.ctrlKey||event.metaKey)return;
+    const tag=event.target&&event.target.tagName;
+    if(tag==='INPUT'||tag==='TEXTAREA'||tag==='SELECT')return;
+    event.preventDefault();
+    shiftCharacter(event.key==='ArrowRight'?1:-1);
+  });
   for(const [id,key]of [['show-digits','digits'],['keep-awake','awake'],['munch-on','munch']])$(id).addEventListener('change',e=>{prefs[key]=e.target.checked;if(key==='munch'&&!prefs.munch)stopMunch();savePrefs();reflectPrefs();});
   $('test-sound').addEventListener('click',async()=>{if(await unlockAudio())chime();});
   $('test-munch').addEventListener('click',async()=>{if(await unlockAudio()){await loadDefaultAudio();playMunch();}});
@@ -416,8 +492,8 @@
   window.addEventListener('pagehide',()=>{saveSession();cancelGate();stopSound();cancelAnimationFrame(raf);raf=0;releaseWake();});
   window.addEventListener('pageshow',()=>{suppressCurrentSound();tick();if(timer.status==='running')requestWake();});
   window.addEventListener('blur',cancelGate);
-  window.addEventListener('resize',()=>{snackVisualKey='';renderSnacks();});
-  const reduceChanged=()=>{snackVisualKey='';renderSnacks();};
+  window.addEventListener('resize',()=>{snapSlide();snackVisualKey='';renderSnacks();});
+  const reduceChanged=()=>{snapSlide();snackVisualKey='';renderSnacks();};
   if(reduced.addEventListener)reduced.addEventListener('change',reduceChanged);else if(reduced.addListener)reduced.addListener(reduceChanged);
 
   function storedPrefs(){
@@ -434,6 +510,7 @@
   }
   const loaded=storedPrefs();
   prefs=loaded.prefs;
+  slide=createSlideState(prefs.character);
   if(loaded.migrated) savePrefs();
   const restored=readStorage('sessionStorage',SESSION);
   if(restored&&own(NEXT,restored.choices?.next)&&own(CURRENT,restored.choices?.current)&&timer.restore(restored.timer)){
