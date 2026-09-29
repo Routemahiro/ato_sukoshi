@@ -41,7 +41,7 @@ test('elephant frame holds for a full squirrel slot',()=>{
 });
 
 test('both characters keep six munch beats in the chew window',()=>{
-  for(const id of [undefined,'squirrel','elephant','mouse']){
+  for(const id of [undefined,'squirrel','elephant','mouse','ghost']){
     const beats=[];
     for(let ms=2000;ms<8000;ms+=50) beats.push(at(ms,id).chewBeat);
     assert.deepEqual([...new Set(beats)],[0,1,2,3,4,5]);
@@ -70,6 +70,7 @@ test('squirrel snackState matches the pre-change pin',()=>{
       assert.deepEqual(snackState(d,remaining,'squirrel'),value);
       if(!value.error) assert.deepEqual(snackState(d,remaining,'elephant'),value);
       if(!value.error) assert.deepEqual(snackState(d,remaining,'mouse'),value);
+      if(!value.error) assert.deepEqual(snackState(d,remaining,'ghost'),value);
       samples.push({d,remaining,value});
     }
   }

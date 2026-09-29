@@ -27,6 +27,17 @@ const themes = [
     ],
     nextNames: scenes.map((scene) => `mouse-next-${scene}.webp`),
   },
+  {
+    upload: resolve(root, 'ato-sukoshi-assets/ghost/upload'),
+    nextGen: resolve(root, 'ato-sukoshi-assets/ghost/next-gen'),
+    uploadNames: [
+      'doughnut.svg',
+      'ghost-ready.webp',
+      ...Array.from({ length: 9 }, (_, i) => `ghost-chew-${i}.webp`),
+      'ghost-lick.webp',
+    ],
+    nextNames: scenes.map((scene) => `ghost-next-${scene}.webp`),
+  },
 ];
 
 const mime = {

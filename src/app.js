@@ -4,7 +4,7 @@
 (() => {
   'use strict';
   const {Countdown,formatTime}=window.Atosukoshi;
-  const {snackState,CHEW_FRAME_COUNT}=window.AtosukoshiSnacks;
+  const {snackState,CHEW_FRAME_COUNT,createFlourishPicker,finishFlourish}=window.AtosukoshiSnacks;
   const A=window.TimerAssets;
   const $=id=>document.getElementById(id);
   const PREF='atosukoshi.preferences.v2', OLD_PREF='atosukoshi.preferences.v1';
@@ -14,12 +14,14 @@
   const SCENE_ALT={
     squirrel:{tidy:'おもちゃを片付けるりすさん',meal:'ごはんを食べるりすさん',bath:'おふろに入るりすさん',out:'リュックを背負って出かけるりすさん',brush:'歯みがきするりすさん',sleep:'おふとんで眠るりすさん'},
     elephant:{tidy:'おもちゃを片付けるぞうさん',meal:'ごはんを食べるぞうさん',bath:'おふろに入るぞうさん',out:'リュックを背負って出かけるぞうさん',brush:'歯みがきするぞうさん',sleep:'おふとんで眠るぞうさん'},
-    mouse:{tidy:'おもちゃを片付けるねずみさん',meal:'ごはんを食べるねずみさん',bath:'おふろに入るねずみさん',out:'リュックを背負って出かけるねずみさん',brush:'歯みがきするねずみさん',sleep:'おふとんで眠るねずみさん'}
+    mouse:{tidy:'おもちゃを片付けるねずみさん',meal:'ごはんを食べるねずみさん',bath:'おふろに入るねずみさん',out:'リュックを背負って出かけるねずみさん',brush:'歯みがきするねずみさん',sleep:'おふとんで眠るねずみさん'},
+    ghost:{tidy:'おもちゃを片付けるおばけさん',meal:'ごはんを食べるおばけさん',bath:'おふろに入るおばけさん',out:'リュックを背負って出かけるおばけさん',brush:'歯みがきするおばけさん',sleep:'おふとんで眠るおばけさん'}
   };
   const CHARACTERS=Object.freeze({
     squirrel:{id:'squirrel',label:'りすさん',snack:'どんぐり',ready:'squirrel-ready.webp',chew:i=>'chew-'+i+'.webp',snackIcon:'acorn.svg',nextScene:k=>'next-'+k+'.webp'},
     elephant:{id:'elephant',label:'ぞうさん',snack:'りんご',ready:'elephant-ready.webp',chew:i=>'elephant-chew-'+i+'.webp',snackIcon:'apple.svg',nextScene:k=>'elephant-next-'+k+'.webp'},
-    mouse:{id:'mouse',label:'ねずみさん',snack:'ビスケット',ready:'mouse-ready.webp',chew:i=>'mouse-chew-'+i+'.webp',snackIcon:'biscuit.svg',nextScene:k=>'mouse-next-'+k+'.webp',land:[.668,.542]}
+    mouse:{id:'mouse',label:'ねずみさん',snack:'ビスケット',ready:'mouse-ready.webp',chew:i=>'mouse-chew-'+i+'.webp',snackIcon:'biscuit.svg',nextScene:k=>'mouse-next-'+k+'.webp',land:[.668,.542]},
+    ghost:{id:'ghost',label:'おばけさん',snack:'ドーナツ',ready:'ghost-ready.webp',chew:i=>'ghost-chew-'+i+'.webp',snackIcon:'doughnut.svg',nextScene:k=>'ghost-next-'+k+'.webp',land:[.514,.509],landSize:.40,flourish:{frame:'ghost-lick.webp',holdMs:1200,showMs:800,chance:.5}}
   });
   const PRESET_SECONDS=Object.freeze([60,180,300,600,900,1200,1800,2700,3600]);
   const DEFAULT_VISIBLE_PRESETS=Object.freeze([60,180,300,600]);
@@ -34,6 +36,7 @@
   const notes=new Set(),munchNodes=new Set();
   let lastSoundIndex=-1,lastSoundPhase='',lastMunchCue='',wake=null,wakePending=false;
   let gateTimer=null,gateStarted=false;
+  let flourishPick=createFlourishPicker();
 
   function toast(text) {
     $('toast').textContent=text; $('toast').hidden=false; clearTimeout(toastTimer);
@@ -103,6 +106,8 @@
     $('squirrel-ready').src=A[c.ready];
     for(let i=0;i<CHEW_FRAME_COUNT;i++)$('chew-'+i).src=A[c.chew(i)];
     $('flying-acorn').src=A[c.snackIcon];
+    if(c.flourish)$('finish-flourish').src=A[c.flourish.frame];
+    else $('finish-flourish').removeAttribute('src');
     gridKey='';snackVisualKey='';
   }
   function applyCharacterCopy(){
@@ -209,9 +214,10 @@
     if(timer.durationMs%10000!==0 && timer.durationMs>=10000)$('acorn-unit').textContent+='（最後は'+timeWords(timer.durationMs%10000)+'）';
     gridKey=key;snackVisualKey='';
   }
-  function setFrame(n){
+  function setFrame(n,flourish=false){
     $('squirrel-ready').hidden=n>=0;
-    for(let i=0;i<CHEW_FRAME_COUNT;i++)$('chew-'+i).hidden=i!==n;
+    for(let i=0;i<CHEW_FRAME_COUNT;i++)$('chew-'+i).hidden=flourish||i!==n;
+    $('finish-flourish').hidden=!flourish;
   }
   function positionCarriedAcorn(s){
     const item=acornNodes[s.index-s.pageStart];if(!item)return;
@@ -220,7 +226,7 @@
     const startX=src.left+src.width/2-box.left,startY=src.top+src.height/2-box.top;
     const land=character().land||[.846,.612];
     const endX=sprite.left+sprite.width*land[0]-box.left,endY=sprite.top+sprite.height*land[1]-box.top;
-    const targetW=sprite.width*.182,flyW=src.width+(targetW-src.width)*e,flyH=flyW*1.12;
+    const targetW=sprite.width*(character().landSize||.182),flyW=src.width+(targetW-src.width)*e,flyH=flyW*1.12;
     const x=startX+(endX-startX)*e,y=startY+(endY-startY)*e-Math.sin(Math.PI*t)*Math.min(30,box.width*.04);
     const fly=$('flying-acorn');fly.style.width=flyW+'px';fly.style.height=flyH+'px';
     fly.style.transform=`translate(${x-flyW/2}px,${y-flyH/2}px) rotate(${12*e}deg)`;
@@ -242,17 +248,17 @@
     const moving=timer.status==='running'||timer.status==='paused';
     const phase=moving?s.phase:'waiting';
     const frame=moving&&s.frame>=0?s.frame:-1;
-    const key=[s.pageStart,s.eaten,phase,frame,reduced.matches].join(':');
+    const c=character(); const flourish=moving&&!reduced.matches&&!!c.flourish&&finishFlourish(s,c.flourish,flourishPick);
+    const key=[s.pageStart,s.eaten,phase,frame,reduced.matches,flourish].join(':');
     if(key!==snackVisualKey){
       acornNodes.forEach((el,i)=>{
         const index=s.pageStart+i;
         el.classList.toggle('is-eaten',index<s.eaten);
         el.classList.toggle('is-carried',moving&&(phase==='reach'||phase==='chew'||phase==='settle')&&index===s.index&&!reduced.matches);
       });
-      setFrame(reduced.matches?-1:frame);
+      setFrame(reduced.matches?-1:frame,flourish);
       $('flying-acorn').hidden=phase!=='reach'||reduced.matches;
       $('snack-theater').dataset.phase=phase;$('snack-theater').dataset.eaten=String(s.eaten);$('snack-theater').dataset.total=String(s.total);
-      const c=character();
       $('squirrel-pose').setAttribute('aria-label',(phase==='waiting'||phase==='settle')?'つぎの'+c.snack+'を待つ'+c.label:'並んだ'+c.snack+'を食べる'+c.label);
       $('squirrel-pose').dataset.chewSubframe=String(s.subframe);
       snackVisualKey=key;
@@ -329,6 +335,7 @@
   function tick(){const deadline=timer.endAt;if(timer.tick())finishEffects(deadline||Date.now());render();}
   function startSession(duration){
     stopSound();cancelAnimationFrame(raf);raf=0;cancelGate();
+    flourishPick=createFlourishPicker();
     timer.reset(duration);timer.start(duration);lastSoundIndex=-1;lastSoundPhase='';lastMunchCue='';gridKey='';snackVisualKey='';
     saveSession();render(true);
     if($('parent-dialog').open)$('parent-dialog').close();
@@ -346,7 +353,7 @@
     startSession(duration);announce('同じ'+timeWords(duration)+'で、最初から始めました。');
   }
   function reset(){
-    stopSound();cancelAnimationFrame(raf);raf=0;cancelGate();timer.reset(prefs.seconds*1000);sessionChoices=null;demo=false;
+    stopSound();cancelAnimationFrame(raf);raf=0;cancelGate();flourishPick=createFlourishPicker();timer.reset(prefs.seconds*1000);sessionChoices=null;demo=false;
     gridKey='';snackVisualKey='';lastSoundIndex=-1;lastMunchCue='';releaseWake();saveSession();
     if($('parent-dialog').open)$('parent-dialog').close();reflectPrefs();
     announce('準備画面に戻りました。');$('start-button').focus({preventScroll:true});
@@ -459,7 +466,7 @@
   prefs=sanitize(readStorage('localStorage',PREF)||readStorage('localStorage',OLD_PREF));
   const restored=readStorage('sessionStorage',SESSION);
   if(restored&&own(NEXT,restored.choices?.next)&&own(CURRENT,restored.choices?.current)&&timer.restore(restored.timer)){
-    sessionChoices={next:restored.choices.next,current:restored.choices.current};demo=restored.demo===true;suppressCurrentSound();reflectPrefs();
+    sessionChoices={next:restored.choices.next,current:restored.choices.current};demo=restored.demo===true;flourishPick=createFlourishPicker();suppressCurrentSound();reflectPrefs();
     if(timer.status==='running'){$('audio-restore').hidden=false;requestWake();}
     toast('同じタブのタイマーを復元しました。');
   }else reflectPrefs();
