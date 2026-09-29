@@ -5,9 +5,9 @@
   'use strict';
   const {Countdown,formatTime}=window.Atosukoshi;
   const {snackState,CHEW_FRAME_COUNT,createFlourishPicker,finishFlourish}=window.AtosukoshiSnacks;
+  const {sanitizePreferences,applyVisiblePresets,cycleCharacter,PREF_KEY,LEGACY_PREF_KEYS}=window.AtosukoshiStage;
   const A=window.TimerAssets;
   const $=id=>document.getElementById(id);
-  const PREF='atosukoshi.preferences.v2', OLD_PREF='atosukoshi.preferences.v1';
   const SESSION='atosukoshi.timer.v1';
   const CURRENT={play:'あそび',video:'どうが',book:'えほん',meal:'ごはん'};
   const NEXT={tidy:'おかたづけ',meal:'ごはん',bath:'おふろ',out:'おでかけ',brush:'はみがき',sleep:'ねんね'};
@@ -23,13 +23,10 @@
     mouse:{id:'mouse',label:'ねずみさん',snack:'ビスケット',ready:'mouse-ready.webp',chew:i=>'mouse-chew-'+i+'.webp',snackIcon:'biscuit.svg',nextScene:k=>'mouse-next-'+k+'.webp',land:[.668,.542]},
     ghost:{id:'ghost',label:'おばけさん',snack:'ドーナツ',ready:'ghost-ready.webp',chew:i=>'ghost-chew-'+i+'.webp',snackIcon:'doughnut.svg',nextScene:k=>'ghost-next-'+k+'.webp',land:[.514,.509],landSize:.40,flourish:{frame:'ghost-lick.webp',holdMs:1200,showMs:800,chance:.5}}
   });
-  const PRESET_SECONDS=Object.freeze([60,180,300,600,900,1200,1800,2700,3600]);
-  const DEFAULT_VISIBLE_PRESETS=Object.freeze([60,180,300,600]);
-  const DEFAULTS={seconds:300,next:'tidy',current:'play',character:'squirrel',munch:true,digits:true,awake:true,visiblePresets:DEFAULT_VISIBLE_PRESETS};
   const own=(obj,key)=>typeof key==='string' && Object.prototype.hasOwnProperty.call(obj,key);
   const timer=new Countdown();
   const reduced=matchMedia('(prefers-reduced-motion: reduce)');
-  let prefs={...DEFAULTS},sessionChoices=null,demo=false;
+  let prefs=sanitizePreferences(null),sessionChoices=null,demo=false;
   let lastMode='',lastSeconds=-1,gridKey='',snackVisualKey='',sceneKey='';
   let acornNodes=[],raf=0,toastTimer=0,storageWarned=false;
   let audio=null,munchBuffer=null,defaultMunchBuffer=null,audioLoad=null,customMunch=false,fileVersion=0;
@@ -47,23 +44,7 @@
     try {if(value===null) window[kind].removeItem(key); else window[kind].setItem(key,JSON.stringify(value));return true;}
     catch {if(!storageWarned){storageWarned=true;toast('設定を保存できません。この画面を開いたままなら使えます。');}return false;}
   }
-  function sanitize(value) {
-    const p={...DEFAULTS};
-    if(!value || typeof value!=='object') return p;
-    if(Number.isInteger(value.seconds) && value.seconds>=1 && value.seconds<=3600) p.seconds=value.seconds;
-    // Older versions have no visiblePresets: keep the original four choices.
-    // Explicitly [] means the user wants custom entry only.
-    if(Array.isArray(value.visiblePresets)) {
-      p.visiblePresets=PRESET_SECONDS.filter(seconds=>value.visiblePresets.includes(seconds));
-    }
-    if(own(NEXT,value.next)) p.next=value.next;
-    if(own(CURRENT,value.current)) p.current=value.current;
-    if(own(CHARACTERS,value.character)) p.character=value.character;
-    for(const k of ['munch','digits','awake']) if(typeof value[k]==='boolean') p[k]=value[k];
-    // v1 sound:false is deliberately not carried over. End chime is always enabled.
-    return p;
-  }
-  function savePrefs(){saveStorage('localStorage',PREF,prefs);}
+  function savePrefs(){saveStorage('localStorage',PREF_KEY,prefs);}
   function saveSession(){saveStorage('sessionStorage',SESSION,timer.status==='idle'?null:{timer:timer.snapshot(),choices:sessionChoices,demo});}
   function choices(){return timer.status==='idle'?prefs:(sessionChoices||prefs);}
   function announce(text){$('announcement').textContent=text;}
@@ -72,37 +53,21 @@
   function audioRunning(){return audio && audio.state==='running';}
 
   function reflectDurationChoices(){
-    const root=$('duration-choices');
-    const visible=prefs.visiblePresets;
-    // Only rebuild when visibility changes, so choosing a duration keeps focus.
-    const key=visible.join(',');
-    if(root.dataset.presets!==key){
-      root.replaceChildren(...visible.map(seconds=>{
-        const b=document.createElement('button');
-        b.type='button';b.className='time-choice';b.dataset.seconds=String(seconds);
-        b.setAttribute('aria-label',String(seconds/60)+'分');
-        const unit=document.createElement('small');unit.textContent='分';
-        b.append(document.createTextNode(String(seconds/60)),unit);
-        return b;
-      }));
-      root.dataset.presets=key;
-    }
-    root.hidden=visible.length===0;
-    root.querySelectorAll('[data-seconds]').forEach(b=>b.setAttribute('aria-pressed',String(+b.dataset.seconds===prefs.seconds)));
-    document.querySelectorAll('[data-visible-preset]').forEach(c=>{
-      c.checked=visible.includes(+c.dataset.visiblePreset);
+    const enabled=new Set(prefs.visiblePresets);
+    document.querySelectorAll('#duration-choices [data-seconds]').forEach(b=>{
+      const seconds=+b.dataset.seconds;
+      b.setAttribute('aria-pressed',String(seconds===prefs.seconds));
+      b.setAttribute('aria-disabled',String(!enabled.has(seconds)));
     });
-    // Display preference must NOT silently change the chosen timer duration.
-    const selectedIsHidden=!visible.includes(prefs.seconds);
-    $('time-selection-note').hidden=!selectedIsHidden;
-    $('time-selection-note').textContent=(visible.length===0?'時間ボタンは非表示です。':'')+
-      '設定中：'+timeWords(prefs.seconds*1000)+'。「ほかの時間にする」から変更できます。';
+    document.querySelectorAll('[data-visible-preset]').forEach(c=>{
+      c.checked=enabled.has(+c.dataset.visiblePreset);
+    });
   }
 
   function character(){return CHARACTERS[prefs.character]||CHARACTERS.squirrel;}
-  function snackUnitLabel(){return character().snack+' 1こ = 10秒';}
   function applyCharacterAssets(){
     const c=character();
+    $('brand-icon').src=A[c.snackIcon];
     $('squirrel-ready').src=A[c.ready];
     for(let i=0;i<CHEW_FRAME_COUNT;i++)$('chew-'+i).src=A[c.chew(i)];
     $('flying-acorn').src=A[c.snackIcon];
@@ -110,18 +75,12 @@
     else $('finish-flourish').removeAttribute('src');
     gridKey='';snackVisualKey='';
   }
-  function applyCharacterCopy(){
-    const c=character();
-    $('snack-timing-note').textContent=c.snack+'1こで10秒。最後の端数は、残りの秒数ぶんです。10分を超えると、60個ずつ表示します。';
-    document.querySelectorAll('[data-character]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.character===prefs.character)));
-  }
   function reflectPrefs(){
     reflectDurationChoices();
-    $('custom-minutes').value=String(Math.floor(prefs.seconds/60));$('custom-seconds').value=String(prefs.seconds%60);
     document.querySelectorAll('[data-next]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.next===prefs.next)));
-    if($('munch-on')) $('munch-on').checked=prefs.munch;
+    $('munch-on').checked=prefs.munch;
     $('show-digits').checked=prefs.digits;$('keep-awake').checked=prefs.awake;
-    applyCharacterAssets();applyCharacterCopy();
+    applyCharacterAssets();
     $('start-label').textContent=timeWords(prefs.seconds*1000)+'で はじめる';
     if(timer.status==='idle'){timer.reset(prefs.seconds*1000);gridKey='';}
     render(true);
@@ -210,8 +169,6 @@
       const img=document.createElement('img');img.src=A[character().snackIcon];img.alt='';img.draggable=false;div.appendChild(img);root.appendChild(div);return div;
     });
     $('reserve-note').hidden=s.reserve===0;$('reserve-note').textContent='このあとに、あと '+s.reserve+'こ';
-    $('acorn-unit').textContent=timer.durationMs<10000?`この1こで ${timeWords(timer.durationMs)}`:snackUnitLabel();
-    if(timer.durationMs%10000!==0 && timer.durationMs>=10000)$('acorn-unit').textContent+='（最後は'+timeWords(timer.durationMs%10000)+'）';
     gridKey=key;snackVisualKey='';
   }
   function setFrame(n,flourish=false){
@@ -289,7 +246,8 @@
     document.body.dataset.mode=mode;
     $('parent-gate').hidden=!holdRequired();
     $('finished-parent-actions').hidden=!completed;
-    $('numeral').hidden=!prefs.digits;
+    $('state-tag').hidden=mode==='idle';
+    $('numeral').hidden=mode==='idle'||!prefs.digits;
     $('parent-bar').hidden=mode==='idle';$('finish-panel').hidden=mode!=='finished';$('ack-panel').hidden=mode!=='acknowledged';
     $('next-scene-panel').hidden=mode!=='finished'&&mode!=='acknowledged';
     if(mode!=='running')$('audio-restore').hidden=true;
@@ -299,7 +257,7 @@
       if(mode==='finished'){title.textContent='おしまいの じかん';sub.textContent=ch.label+'も、つぎの じゅんび。';}
       else if(mode==='acknowledged'){title.textContent='いっしょに、はじめよう。';sub.textContent='タイマーは、ここで おしまい。';}
       else if(mode==='paused'){title.textContent='ちょっと、ひとやすみ。';sub.textContent='じかんは とまっているよ。';}
-      else{title.replaceChildren(document.createTextNode(ch.snack+'が なくなったら'),document.createElement('br'),document.createTextNode('おしまい。'));sub.textContent=mode==='idle'?ch.label+'と、つぎのじゅんびを しよう。':'10びょうごとに、ひとつ パクパク。';}
+      else{title.replaceChildren(document.createTextNode(ch.snack+'が なくなったら'),document.createElement('br'),document.createTextNode('おしまい。'));sub.textContent=mode==='idle'?'':'10びょうごとに、ひとつ パクパク。';}
       $('next-icon').setAttribute('href','#i-'+sel.next);
       $('next-label').textContent=NEXT[sel.next];$('ack-title').textContent=NEXT[sel.next]+'の じかん';
       $('parent-hint-quote').textContent='「ぜんぶ なくなったら、'+NEXT[sel.next]+'しようね」';
@@ -365,32 +323,31 @@
   Object.keys(NEXT).forEach(key=>{
     Object.values(CHARACTERS).forEach(c=>{const img=new Image();img.src=A[c.nextScene(key)];});
   });
-  // Delegation also covers buttons added by the display-preference checkboxes.
   $('duration-choices').addEventListener('click',event=>{
     const b=event.target.closest('button[data-seconds]');
     if(!b || !$('duration-choices').contains(b) || timer.status!=='idle')return;
+    if(b.getAttribute('aria-disabled')==='true')return;
     const seconds=Number(b.dataset.seconds);
     if(!prefs.visiblePresets.includes(seconds))return;
-    prefs.seconds=seconds;$('custom-error').hidden=true;savePrefs();reflectPrefs();
+    prefs.seconds=seconds;savePrefs();reflectPrefs();
   });
   document.querySelectorAll('[data-visible-preset]').forEach(c=>c.addEventListener('change',()=>{
     if(timer.status!=='idle'){c.checked=prefs.visiblePresets.includes(+c.dataset.visiblePreset);return;}
-    const checked=new Set(Array.from(document.querySelectorAll('[data-visible-preset]:checked'),el=>+el.dataset.visiblePreset));
-    prefs.visiblePresets=PRESET_SECONDS.filter(seconds=>checked.has(seconds));
-    savePrefs();reflectDurationChoices();
-    announce(prefs.visiblePresets.length?'時間ボタンの表示を更新しました。':'時間ボタンを非表示にしました。「ほかの時間にする」から設定できます。');
+    const requested=Array.from(document.querySelectorAll('[data-visible-preset]:checked'),el=>+el.dataset.visiblePreset);
+    const next=applyVisiblePresets(prefs.seconds,requested);
+    if(!next){c.checked=true;announce('時間は、ひとつ以上 選べるようにしておきます。');return;}
+    const moved=next.seconds!==prefs.seconds;
+    prefs.visiblePresets=next.visiblePresets;prefs.seconds=next.seconds;savePrefs();reflectPrefs();
+    announce(moved?timeWords(prefs.seconds*1000)+'に合わせました。':'使える時間を更新しました。');
   }));
   document.querySelectorAll('[data-next]').forEach(b=>b.addEventListener('click',()=>{if(timer.status!=='idle')return;prefs.next=b.dataset.next;savePrefs();reflectPrefs();}));
-  document.querySelectorAll('[data-character]').forEach(b=>b.addEventListener('click',()=>{
-    if(timer.status!=='idle'||b.dataset.character===prefs.character)return;
-    prefs.character=b.dataset.character;sceneKey='';savePrefs();applyCharacterAssets();applyCharacterCopy();render(true);
+  function selectCharacter(id){
+    if(timer.status!=='idle'||id===prefs.character||!own(CHARACTERS,id))return;
+    prefs.character=id;sceneKey='';savePrefs();applyCharacterAssets();render(true);
     announce(character().label+'に かえました。');
-  }));
-  $('apply-custom').addEventListener('click',()=>{
-    const rm=$('custom-minutes').value,rs=$('custom-seconds').value,m=Number(rm),s=Number(rs),total=m*60+s;
-    if(!rm.trim()||!rs.trim()||!Number.isInteger(m)||!Number.isInteger(s)||m<0||m>60||s<0||s>59||total<1||total>3600){$('custom-error').textContent='1秒〜60分で設定してください。秒は0〜59です。';$('custom-error').hidden=false;return;}
-    prefs.seconds=total;$('custom-error').hidden=true;$('custom-details').open=false;savePrefs();reflectPrefs();
-  });
+  }
+  $('character-prev').addEventListener('click',()=>selectCharacter(cycleCharacter(prefs.character,-1)));
+  $('character-next').addEventListener('click',()=>selectCharacter(cycleCharacter(prefs.character,1)));
   for(const [id,key]of [['show-digits','digits'],['keep-awake','awake'],['munch-on','munch']])$(id).addEventListener('change',e=>{prefs[key]=e.target.checked;if(key==='munch'&&!prefs.munch)stopMunch();savePrefs();reflectPrefs();});
   $('test-sound').addEventListener('click',async()=>{if(await unlockAudio())chime();});
   $('test-munch').addEventListener('click',async()=>{if(await unlockAudio()){await loadDefaultAudio();playMunch();}});
@@ -463,7 +420,21 @@
   const reduceChanged=()=>{snackVisualKey='';renderSnacks();};
   if(reduced.addEventListener)reduced.addEventListener('change',reduceChanged);else if(reduced.addListener)reduced.addListener(reduceChanged);
 
-  prefs=sanitize(readStorage('localStorage',PREF)||readStorage('localStorage',OLD_PREF));
+  function storedPrefs(){
+    const current=readStorage('localStorage',PREF_KEY);
+    if(current&&typeof current==='object'){
+      const next=sanitizePreferences(current);
+      return {prefs:next,migrated:JSON.stringify(next)!==JSON.stringify(current)};
+    }
+    for(const key of LEGACY_PREF_KEYS){
+      const old=readStorage('localStorage',key);
+      if(old&&typeof old==='object') return {prefs:sanitizePreferences(old),migrated:true};
+    }
+    return {prefs:sanitizePreferences(null),migrated:false};
+  }
+  const loaded=storedPrefs();
+  prefs=loaded.prefs;
+  if(loaded.migrated) savePrefs();
   const restored=readStorage('sessionStorage',SESSION);
   if(restored&&own(NEXT,restored.choices?.next)&&own(CURRENT,restored.choices?.current)&&timer.restore(restored.timer)){
     sessionChoices={next:restored.choices.next,current:restored.choices.current};demo=restored.demo===true;flourishPick=createFlourishPicker();suppressCurrentSound();reflectPrefs();

@@ -14,16 +14,6 @@
 <body data-mode="idle">
 <svg width="0" height="0" style="position:absolute;overflow:hidden" aria-hidden="true" xmlns="http://www.w3.org/2000/svg">
 <defs>
-  <symbol id="i-acorn" viewBox="0 0 80 80">
-    <path d="M42 19q-1-10 5-13" fill="none" stroke="#735342" stroke-width="4" stroke-linecap="round"/>
-    <path d="M19 33h43c-1 23-7 30-21 40C26 64 20 56 19 33" fill="#dba065"/>
-    <path d="M22 39q0 17 14 25" fill="none" stroke="#ebbd8b" stroke-width="4" stroke-linecap="round"/>
-    <path d="M14 34c0-12 10-18 27-18s26 6 26 18q-27 9-53 0" fill="#8a654e"/>
-    <path d="m24 23 5 5m8-7 6 7m8-5 5 6" fill="none" stroke="#b78d6b" stroke-width="3" stroke-linecap="round"/>
-  </symbol>
-  <symbol id="i-acorn-outline" viewBox="0 0 80 80">
-    <path d="M42 19q-1-10 5-13M19 36c1 21 7 28 22 37 14-10 20-18 21-37M14 34c0-12 10-18 27-18s26 6 26 18q-27 9-53 0Z" fill="none" stroke="#b9c6ac" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-  </symbol>
   <symbol id="i-play" viewBox="0 0 48 48">
     <rect x="6" y="23" width="19" height="19" rx="4" fill="#cc9567"/>
     <rect x="27" y="25" width="15" height="17" rx="4" fill="#86a380"/>
@@ -92,7 +82,7 @@
 </svg>
 <header class="app-header">
   <div class="brand">
-    <svg viewBox="0 0 80 80" aria-hidden="true"><use href="#i-acorn"/></svg>
+    <img id="brand-icon" class="brand-icon" alt="" width="80" height="80" draggable="false">
     <div><h1 class="brand-name">あとすこし</h1><span class="brand-caption">おしまいが見えるタイマー</span></div>
   </div>
   <div class="header-actions">
@@ -104,103 +94,33 @@
   <div id="audio-restore" class="audio-restore" hidden>
     <span>音を鳴らすには、もう一度タップしてください。</span><button id="unlock-audio" type="button">終了音を有効に</button>
   </div>
-  <div class="app-grid">
-    <section class="settings setup-only" aria-labelledby="settings-heading">
-      <h2 id="settings-heading" class="panel-heading">おとなが じゅんび</h2>
-      <fieldset>
-        <legend><span class="step">1</span>あと、どれくらい？</legend>
-        <div id="duration-choices" class="durations" role="group" aria-label="時間を選ぶ">
-          <button type="button" class="time-choice" data-seconds="60" aria-pressed="false">1<small>分</small></button>
-          <button type="button" class="time-choice" data-seconds="180" aria-pressed="false">3<small>分</small></button>
-          <button type="button" class="time-choice" data-seconds="300" aria-pressed="true">5<small>分</small></button>
-          <button type="button" class="time-choice" data-seconds="600" aria-pressed="false">10<small>分</small></button>
-        </div>
-        <p id="time-selection-note" class="time-selection-note" hidden></p>
-        <details class="custom-details" id="custom-details">
-          <summary>ほかの時間にする</summary>
-          <div class="custom-fields">
-            <label><input type="number" id="custom-minutes" value="5" min="0" max="60" step="1" inputmode="numeric" aria-label="分">分</label>
-            <label><input type="number" id="custom-seconds" value="0" min="0" max="59" step="1" inputmode="numeric" aria-label="秒">秒</label>
-            <button type="button" id="apply-custom" class="apply-custom">設定</button>
-          </div>
-          <p class="field-error" id="custom-error" role="alert" hidden></p>
-        </details>
-      </fieldset>
-      <fieldset>
-        <legend><span class="step">2</span>おわったら、なにをする？</legend>
-        <div id="next-choices" class="next-choices" role="group" aria-label="次の行動を選ぶ">
-          <button class="next-choice" data-next="tidy" type="button" aria-pressed="true"><svg aria-hidden="true"><use href="#i-tidy"/></svg><span>おかたづけ</span></button>
-          <button class="next-choice" data-next="meal" type="button" aria-pressed="false"><svg aria-hidden="true"><use href="#i-meal"/></svg><span>ごはん</span></button>
-          <button class="next-choice" data-next="bath" type="button" aria-pressed="false"><svg aria-hidden="true"><use href="#i-bath"/></svg><span>おふろ</span></button>
-          <button class="next-choice" data-next="out" type="button" aria-pressed="false"><svg aria-hidden="true"><use href="#i-out"/></svg><span>おでかけ</span></button>
-          <button class="next-choice" data-next="brush" type="button" aria-pressed="false"><svg aria-hidden="true"><use href="#i-brush"/></svg><span>はみがき</span></button>
-          <button class="next-choice" data-next="sleep" type="button" aria-pressed="false"><svg aria-hidden="true"><use href="#i-sleep"/></svg><span>ねんね</span></button>
-        </div>
-      </fieldset>
-      <details class="extra-settings" id="extra-settings">
-        <summary>音・表示</summary>
-        <fieldset class="character-settings" aria-labelledby="character-heading">
-          <legend id="character-heading">なかまを えらぶ</legend>
-          <div id="character-choices" class="character-choices" role="group" aria-label="なかまを選ぶ">
-            <button type="button" class="character-choice" data-character="squirrel" aria-pressed="true">りすさん</button>
-            <button type="button" class="character-choice" data-character="elephant" aria-pressed="false">ぞうさん</button>
-            <button type="button" class="character-choice" data-character="mouse" aria-pressed="false">ねずみさん</button>
-            <button type="button" class="character-choice" data-character="ghost" aria-pressed="false">おばけさん</button>
-          </div>
-        </fieldset>
-        <fieldset class="visible-times-settings" aria-describedby="preset-help">
-          <legend>時間ボタンの表示</legend>
-          <p class="preset-help" id="preset-help">チェックした時間だけ、上の<br>「あと、どれくらい？」に並びます。</p>
-          <div class="preset-options">
-            <label class="preset-option"><input type="checkbox" data-visible-preset="60" aria-label="1分を表示する" checked><span class="preset-tile"><span class="preset-check" aria-hidden="true"></span><span>1分</span></span></label>
-            <label class="preset-option"><input type="checkbox" data-visible-preset="180" aria-label="3分を表示する" checked><span class="preset-tile"><span class="preset-check" aria-hidden="true"></span><span>3分</span></span></label>
-            <label class="preset-option"><input type="checkbox" data-visible-preset="300" aria-label="5分を表示する" checked><span class="preset-tile"><span class="preset-check" aria-hidden="true"></span><span>5分</span></span></label>
-            <label class="preset-option"><input type="checkbox" data-visible-preset="600" aria-label="10分を表示する" checked><span class="preset-tile"><span class="preset-check" aria-hidden="true"></span><span>10分</span></span></label>
-            <label class="preset-option"><input type="checkbox" data-visible-preset="900" aria-label="15分を表示する"><span class="preset-tile"><span class="preset-check" aria-hidden="true"></span><span>15分</span></span></label>
-            <label class="preset-option"><input type="checkbox" data-visible-preset="1200" aria-label="20分を表示する"><span class="preset-tile"><span class="preset-check" aria-hidden="true"></span><span>20分</span></span></label>
-            <label class="preset-option"><input type="checkbox" data-visible-preset="1800" aria-label="30分を表示する"><span class="preset-tile"><span class="preset-check" aria-hidden="true"></span><span>30分</span></span></label>
-            <label class="preset-option"><input type="checkbox" data-visible-preset="2700" aria-label="45分を表示する"><span class="preset-tile"><span class="preset-check" aria-hidden="true"></span><span>45分</span></span></label>
-            <label class="preset-option"><input type="checkbox" data-visible-preset="3600" aria-label="60分を表示する"><span class="preset-tile"><span class="preset-check" aria-hidden="true"></span><span>60分</span></span></label>
-          </div>
-        </fieldset>
-
-        <label class="check-row"><input type="checkbox" id="show-digits" checked>残り時間の数字を見せる</label>
-        <label class="check-row"><input type="checkbox" id="keep-awake" checked>画面の自動消灯を防ぐ（対応端末）</label>
-        <label class="check-row"><input type="checkbox" id="munch-on" checked>パクパクの音を鳴らす</label>
-        <div class="munch-preview"><button class="sound-test" id="test-munch" type="button">パクパクの音をきく</button></div>
-        <details class="custom-audio-details"><summary>パクパクの音を差し替える</summary>
-          <label for="munch-file">音声ファイルを選ぶ</label>
-          <input id="munch-file" type="file" accept="audio/*,.wav,.mp3,.ogg,.m4a,.aac,.flac,.webm">
-          <p id="munch-file-name" class="dialog-note">内蔵の「ぱく、ぱく、もく」を使用中</p>
-          <button id="reset-munch" type="button" class="sound-test" hidden>内蔵の音に戻す</button>
-          <p class="dialog-note">2MB以下・0.05〜2秒の音。送信せず、このタブだけで使います。</p>
-        </details>
-        <p class="dialog-note" id="snack-timing-note">どんぐり1こで10秒。最後の端数は、残りの秒数ぶんです。10分を超えると、60個ずつ表示します。</p>
-      </details>
-      <div class="sound-row">
-        <span class="sound-label">おわりに、やさしい音</span>
-        <button class="sound-test" id="test-sound" type="button">終了音をきく</button>
-      </div>
-      <button id="start-button" type="button" class="primary"><svg aria-hidden="true"><use href="#i-start"/></svg><span id="start-label">5分で はじめる</span></button>
-      <button id="demo-button" class="text-button demo-button" type="button">まずは20秒で おためし →</button>
-      <p class="browser-note">画面を開いたまま使ってください。<br>別のアプリを見ている間・画面ロック中は、終了音が鳴らないことがあります。</p>
-    </section>
-    <section class="stage-shell" aria-label="こどもと見るタイマー">
+  <section class="stage-shell" aria-label="こどもと見るタイマー">
       <div class="stage" id="timer-stage">
         <div class="stage-top">
-          <span class="state-tag"><span class="state-dot" aria-hidden="true"></span><span id="state-label">じゅんび中</span></span>
-          <div class="numeral" id="numeral">
+          <div id="duration-choices" class="durations setup-only" role="group" aria-label="時間を選ぶ">
+            <button type="button" class="time-choice" data-seconds="60" aria-pressed="false" aria-disabled="false">1<small>分</small></button>
+            <button type="button" class="time-choice" data-seconds="180" aria-pressed="false" aria-disabled="false">3<small>分</small></button>
+            <button type="button" class="time-choice" data-seconds="300" aria-pressed="true" aria-disabled="false">5<small>分</small></button>
+            <button type="button" class="time-choice" data-seconds="600" aria-pressed="false" aria-disabled="false">10<small>分</small></button>
+            <button type="button" class="time-choice" data-seconds="900" aria-pressed="false" aria-disabled="true">15<small>分</small></button>
+            <button type="button" class="time-choice" data-seconds="1200" aria-pressed="false" aria-disabled="true">20<small>分</small></button>
+            <button type="button" class="time-choice" data-seconds="1800" aria-pressed="false" aria-disabled="true">30<small>分</small></button>
+            <button type="button" class="time-choice" data-seconds="2700" aria-pressed="false" aria-disabled="true">45<small>分</small></button>
+            <button type="button" class="time-choice" data-seconds="3600" aria-pressed="false" aria-disabled="true">60<small>分</small></button>
+          </div>
+          <span class="state-tag session-only" id="state-tag"><span class="state-dot" aria-hidden="true"></span><span id="state-label">タイマー中</span></span>
+          <div class="numeral session-only" id="numeral">
             <span class="remaining-caption" id="remaining-caption">あと</span>
             <time id="time-display" role="timer" aria-live="off" aria-label="残り5分">05:00</time>
-            <small class="setup-only" id="acorn-unit">どんぐり 1こ = 10秒</small>
           </div>
         </div>
         <div class="stage-copy">
           <h2 id="stage-title" tabindex="-1">どんぐりが なくなったら<br>おしまい。</h2>
-          <p id="stage-subtitle">りすさんと、つぎのじゅんびを しよう。</p>
+          <p id="stage-subtitle"></p>
         </div>
         <div class="snack-theater" id="snack-theater" data-phase="waiting">
           <div class="squirrel-space">
+            <button type="button" class="character-arrow setup-only" id="character-prev" aria-label="前のなかま"><svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path d="M14.5 5 8 12l6.5 7" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
             <div id="squirrel-pose" class="squirrel-pose" role="img" aria-label="どんぐりを待つりすさん">
               <img id="squirrel-ready" class="squirrel-frame" alt="" draggable="false" width="768" height="768">
               <img id="chew-0" class="squirrel-frame" alt="" draggable="false" width="768" height="768" hidden>
@@ -214,6 +134,7 @@
               <img id="chew-8" class="squirrel-frame" alt="" draggable="false" width="768" height="768" hidden>
               <img id="finish-flourish" class="squirrel-frame" alt="" draggable="false" width="768" height="768" hidden>
             </div>
+            <button type="button" class="character-arrow setup-only" id="character-next" aria-label="次のなかま"><svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path d="M9.5 5 16 12l-6.5 7" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
           </div>
           <div class="acorn-area" id="acorn-area" role="progressbar" aria-label="残り時間" aria-valuemin="0" aria-valuemax="100" aria-valuenow="100" aria-valuetext="残り5分">
             <div class="acorns" id="acorns" aria-hidden="true"></div>
@@ -225,13 +146,64 @@
         <div class="next-scene-panel" id="next-scene-panel" hidden>
           <img id="next-scene" alt="おもちゃを片付けるりすさん" width="768" height="768">
         </div>
-        <div class="next-strip single-next" id="next-strip">
-          <div class="activity-block"><svg aria-hidden="true"><use id="next-icon" href="#i-tidy"/></svg><div><span class="activity-overline">つぎは</span><span class="activity-name" id="next-label">おかたづけ</span></div></div>
+        <div class="next-strip" id="next-strip">
+          <div class="next-setup setup-only">
+            <p class="next-setup-label" id="next-setup-label">つぎは</p>
+            <div id="next-choices" class="next-choices" role="group" aria-labelledby="next-setup-label">
+              <button class="next-choice" data-next="tidy" type="button" aria-pressed="true"><svg aria-hidden="true"><use href="#i-tidy"/></svg><span>おかたづけ</span></button>
+              <button class="next-choice" data-next="meal" type="button" aria-pressed="false"><svg aria-hidden="true"><use href="#i-meal"/></svg><span>ごはん</span></button>
+              <button class="next-choice" data-next="bath" type="button" aria-pressed="false"><svg aria-hidden="true"><use href="#i-bath"/></svg><span>おふろ</span></button>
+              <button class="next-choice" data-next="out" type="button" aria-pressed="false"><svg aria-hidden="true"><use href="#i-out"/></svg><span>おでかけ</span></button>
+              <button class="next-choice" data-next="brush" type="button" aria-pressed="false"><svg aria-hidden="true"><use href="#i-brush"/></svg><span>はみがき</span></button>
+              <button class="next-choice" data-next="sleep" type="button" aria-pressed="false"><svg aria-hidden="true"><use href="#i-sleep"/></svg><span>ねんね</span></button>
+            </div>
+          </div>
+          <div class="activity-block session-only"><svg aria-hidden="true"><use id="next-icon" href="#i-tidy"/></svg><div><span class="activity-overline">つぎは</span><span class="activity-name" id="next-label">おかたづけ</span></div></div>
+        </div>
+        <div class="setup-actions setup-only">
+          <button id="start-button" type="button" class="primary"><svg aria-hidden="true"><use href="#i-start"/></svg><span id="start-label">5分で はじめる</span></button>
+          <button id="demo-button" class="text-button demo-button" type="button">まずは20秒で おためし →</button>
         </div>
         <div class="finish-panel" id="finish-panel" hidden><button id="ack-button" class="primary" type="button">つぎへ いこう <span aria-hidden="true">→</span></button></div>
         <div class="ack-panel" id="ack-panel" hidden><h3 id="ack-title">おかたづけの じかん</h3><p>いっしょに はじめよう。</p></div>
       </div>
       <p class="parent-hint setup-only">はじめる前に、<strong id="parent-hint-quote">「ぜんぶ なくなったら、おかたづけしようね」</strong>と一緒に確認。</p>
+      <details id="settings-details" class="stage-settings setup-only">
+        <summary>せってい</summary>
+        <div class="stage-settings-body">
+          <fieldset class="visible-times-settings" aria-describedby="preset-help">
+            <legend>時間ボタンの表示</legend>
+            <p class="preset-help" id="preset-help">チェックした時間だけ、上のボタンで選べます。外した時間はグレーになって選べません。</p>
+            <div class="preset-options">
+              <label class="preset-option"><input type="checkbox" data-visible-preset="60" aria-label="1分を使えるようにする" checked><span class="preset-tile"><span class="preset-check" aria-hidden="true"></span><span>1分</span></span></label>
+              <label class="preset-option"><input type="checkbox" data-visible-preset="180" aria-label="3分を使えるようにする" checked><span class="preset-tile"><span class="preset-check" aria-hidden="true"></span><span>3分</span></span></label>
+              <label class="preset-option"><input type="checkbox" data-visible-preset="300" aria-label="5分を使えるようにする" checked><span class="preset-tile"><span class="preset-check" aria-hidden="true"></span><span>5分</span></span></label>
+              <label class="preset-option"><input type="checkbox" data-visible-preset="600" aria-label="10分を使えるようにする" checked><span class="preset-tile"><span class="preset-check" aria-hidden="true"></span><span>10分</span></span></label>
+              <label class="preset-option"><input type="checkbox" data-visible-preset="900" aria-label="15分を使えるようにする"><span class="preset-tile"><span class="preset-check" aria-hidden="true"></span><span>15分</span></span></label>
+              <label class="preset-option"><input type="checkbox" data-visible-preset="1200" aria-label="20分を使えるようにする"><span class="preset-tile"><span class="preset-check" aria-hidden="true"></span><span>20分</span></span></label>
+              <label class="preset-option"><input type="checkbox" data-visible-preset="1800" aria-label="30分を使えるようにする"><span class="preset-tile"><span class="preset-check" aria-hidden="true"></span><span>30分</span></span></label>
+              <label class="preset-option"><input type="checkbox" data-visible-preset="2700" aria-label="45分を使えるようにする"><span class="preset-tile"><span class="preset-check" aria-hidden="true"></span><span>45分</span></span></label>
+              <label class="preset-option"><input type="checkbox" data-visible-preset="3600" aria-label="60分を使えるようにする"><span class="preset-tile"><span class="preset-check" aria-hidden="true"></span><span>60分</span></span></label>
+            </div>
+          </fieldset>
+          <label class="check-row"><input type="checkbox" id="show-digits" checked>残り時間の数字を見せる</label>
+          <label class="check-row"><input type="checkbox" id="keep-awake" checked>画面の自動消灯を防ぐ（対応端末）</label>
+          <label class="check-row"><input type="checkbox" id="munch-on" checked>パクパクの音を鳴らす</label>
+          <div class="munch-preview"><button class="sound-test" id="test-munch" type="button">パクパクの音をきく</button></div>
+          <details class="custom-audio-details"><summary>パクパクの音を差し替える</summary>
+            <label for="munch-file">音声ファイルを選ぶ</label>
+            <input id="munch-file" type="file" accept="audio/*,.wav,.mp3,.ogg,.m4a,.aac,.flac,.webm">
+            <p id="munch-file-name" class="dialog-note">内蔵の「ぱく、ぱく、もく」を使用中</p>
+            <button id="reset-munch" type="button" class="sound-test" hidden>内蔵の音に戻す</button>
+            <p class="dialog-note">2MB以下・0.05〜2秒の音。送信せず、このタブだけで使います。</p>
+          </details>
+          <div class="sound-row">
+            <span class="sound-label">おわりに、やさしい音</span>
+            <button class="sound-test" id="test-sound" type="button">終了音をきく</button>
+          </div>
+          <p class="browser-note">画面を開いたまま使ってください。<br>別のアプリを見ている間・画面ロック中は、終了音が鳴らないことがあります。</p>
+        </div>
+      </details>
       <div class="parent-bar" id="parent-bar" hidden>
         <div class="device-status"><span id="wake-status">画面は開いたままで</span><br><span id="audio-status">終了音：入</span></div>
         <button type="button" id="parent-gate" class="parent-gate" aria-describedby="gate-description"><span id="gate-label">おとなの操作 · 長押し</span></button>
@@ -245,7 +217,6 @@
         </div>
       </div>
     </section>
-  </div>
 </main>
 <dialog id="parent-dialog" aria-labelledby="parent-title">
   <div class="dialog-head"><h2 id="parent-title">おとなの操作</h2><button type="button" class="close-dialog" data-close="parent-dialog" aria-label="こどもの画面に戻る">×</button></div>
@@ -263,6 +234,7 @@
 <script>__TIMER_CORE__</script>
 <script>__SNACK_CORE__</script>
 <script>__ASSETS__</script>
+<script>__STAGE_MODEL__</script>
 <script>__APP__</script>
 
 </body>

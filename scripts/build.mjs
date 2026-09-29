@@ -6,7 +6,8 @@ const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 let html = readFileSync(resolve(root, 'src/index.template.html'), 'utf8');
 for (const [token, file] of Object.entries({
   '__STYLES__': 'styles.css', '__TIMER_CORE__': 'timer-core.js',
-  '__SNACK_CORE__': 'snack-core.js', '__ASSETS__': 'assets.js', '__APP__': 'app.js'
+  '__SNACK_CORE__': 'snack-core.js', '__ASSETS__': 'assets.js',
+  '__STAGE_MODEL__': 'stage-model.js', '__APP__': 'app.js'
 })) {
   if (html.split(token).length !== 2) throw new Error(`Expected exactly one ${token}`);
   html = html.replace(token, () => readFileSync(resolve(root, 'src', file), 'utf8'));
