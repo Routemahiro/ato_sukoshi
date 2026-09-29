@@ -34,7 +34,7 @@ test('mouse theme is registered beside elephant',()=>{
   assert.ok(js.includes("nextScene:k=>'mouse-next-'+k+'.webp'"));
   assert.ok(js.includes('mouse-next-'));
   for(const alt of ['おもちゃを片付けるねずみさん','ごはんを食べるねずみさん','おふろに入るねずみさん','リュックを背負って出かけるねずみさん','歯みがきするねずみさん','おふとんで眠るねずみさん'])assert.ok(js.includes(alt),alt);
-  assert.ok(js.includes('land:[.639,.613]'));
+  assert.ok(js.includes('land:[.668,.542]'));
   assert.ok(js.includes('character().land||[.846,.612]'));
 });
 for(const d of [1000,20000,60000,180000,300000,600000,900000,1200000,1800000,2700000,3600000])test(`exact deadline ${d}`,()=>{let now=1000;const t=new Countdown(()=>now);t.start(d);now+=d-1;assert.equal(t.remaining(),1);assert.equal(t.tick(),false);now++;assert.equal(t.tick(),true);assert.equal(t.tick(),false);});
