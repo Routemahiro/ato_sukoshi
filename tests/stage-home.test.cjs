@@ -13,6 +13,15 @@ function at(source, needle) {
   return index;
 }
 
+test('release version is 9.2.0', () => {
+  assert.ok(html.includes('content="9.2.0"'));
+  const pkg = JSON.parse(fs.readFileSync(path.join(root, 'package.json'), 'utf8'));
+  assert.equal(pkg.version, '9.2.0');
+  const notes = fs.readFileSync(path.join(root, 'CHANGELOG.md'), 'utf8');
+  assert.ok(notes.includes('## 9.2.0'));
+  assert.equal(notes.includes('## 9.1.0'), true);
+});
+
 test('setup lives on the stage in one column', () => {
   assert.equal(html.includes('class="settings'), false);
   assert.equal(html.includes('おとなが じゅんび'), false);
@@ -72,6 +81,10 @@ test('app wires disabling, cycling, migration, and the food icon', () => {
   assert.ok(app.includes('reduceCharacterSlide(slide,delta)'));
   assert.ok(app.includes('shiftCharacter(-1)'));
   assert.ok(app.includes('shiftCharacter(1)'));
+  assert.ok(app.includes('classifyStageGesture('));
+  assert.ok(app.includes('shiftCharacter(gesture.delta)'));
+  assert.ok(app.includes("gesture.kind==='horizontal-swipe'"));
+  assert.ok(app.includes('swallowStageClick'));
   assert.ok(app.includes("event.key!=='ArrowLeft'&&event.key!=='ArrowRight'"));
   assert.ok(app.includes('abortCharacterSlide(slide)'));
   assert.ok(app.includes('reduced.matches'));
@@ -110,6 +123,7 @@ test('chevrons sit above the animal and the pair slides inside a clip', () => {
   assert.ok(css.includes('background: none'));
   assert.ok(css.includes('box-shadow: none'));
   assert.ok(css.includes('.stage-track { position: relative; overflow: hidden; }'));
+  assert.ok(css.includes('.stage-track, .stage-track * { touch-action: pan-y; }'));
   assert.ok(css.includes('body[data-mode=idle] .squirrel-space { padding-top: 36px; }'));
   assert.ok(css.includes('.stage-pair-out'));
 });

@@ -3,7 +3,8 @@ const assert = require('node:assert/strict');
 const {
   PRESET_SECONDS, DEFAULT_VISIBLE_PRESETS, CHARACTER_ORDER, PREF_KEY, LEGACY_PREF_KEYS,
   nearestEnabledSeconds, sanitizePreferences, applyVisiblePresets, cycleCharacter,
-  characterMotion, createSlideState, reduceCharacterSlide, settleCharacterSlide, abortCharacterSlide
+  characterMotion, createSlideState, reduceCharacterSlide, settleCharacterSlide, abortCharacterSlide,
+  SWIPE_MIN_PX, SWIPE_AXIS_RATIO, classifyStageGesture
 } = require('../src/stage-model.js');
 
 test('schema key moves to v3 and still names the old keys', () => {
@@ -149,4 +150,24 @@ test('abort snaps to the committed character and drops an in-flight settle', () 
   let back = createSlideState('squirrel');
   for (let i = 0; i < 5; i++) back = reduceCharacterSlide(back, -1).state;
   assert.equal(back.showing, 'ghost');
+});
+
+test('stage gestures share the character slide delta', () => {
+  assert.equal(SWIPE_MIN_PX, 40);
+  assert.equal(SWIPE_AXIS_RATIO, 1.5);
+  assert.deepEqual(classifyStageGesture(-40, 0), {kind: 'horizontal-swipe', delta: 1});
+  assert.deepEqual(classifyStageGesture(40, 0), {kind: 'horizontal-swipe', delta: -1});
+  assert.deepEqual(classifyStageGesture(-60, 30), {kind: 'horizontal-swipe', delta: 1});
+  assert.equal(classifyStageGesture(-60, 40).kind, 'vertical-scroll');
+  assert.equal(classifyStageGesture(-60, 40).delta, 0);
+  assert.deepEqual(classifyStageGesture(0, 80), {kind: 'vertical-scroll', delta: 0});
+  assert.deepEqual(classifyStageGesture(24, -18), {kind: 'tap', delta: 0});
+  assert.deepEqual(classifyStageGesture(-39, 0), {kind: 'tap', delta: 0});
+  assert.deepEqual(classifyStageGesture(Number.NaN, 12), {kind: 'tap', delta: 0});
+  const next = classifyStageGesture(-80, 4);
+  const prev = classifyStageGesture(80, 4);
+  assert.equal(reduceCharacterSlide(createSlideState('squirrel'), next.delta).state.showing, 'elephant');
+  assert.equal(reduceCharacterSlide(createSlideState('ghost'), next.delta).state.showing, 'squirrel');
+  assert.equal(reduceCharacterSlide(createSlideState('squirrel'), prev.delta).state.showing, 'ghost');
+  assert.equal(reduceCharacterSlide(createSlideState('elephant'), prev.delta).state.showing, 'squirrel');
 });

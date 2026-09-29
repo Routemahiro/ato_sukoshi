@@ -5,7 +5,7 @@
   'use strict';
   const {Countdown,formatTime}=window.Atosukoshi;
   const {snackState,CHEW_FRAME_COUNT,createFlourishPicker,finishFlourish}=window.AtosukoshiSnacks;
-  const {sanitizePreferences,applyVisiblePresets,createSlideState,reduceCharacterSlide,settleCharacterSlide,abortCharacterSlide,PREF_KEY,LEGACY_PREF_KEYS}=window.AtosukoshiStage;
+  const {sanitizePreferences,applyVisiblePresets,createSlideState,reduceCharacterSlide,settleCharacterSlide,abortCharacterSlide,classifyStageGesture,PREF_KEY,LEGACY_PREF_KEYS}=window.AtosukoshiStage;
   const A=window.TimerAssets;
   const $=id=>document.getElementById(id);
   const SESSION='atosukoshi.timer.v1';
@@ -415,6 +415,50 @@
   }
   $('character-prev').addEventListener('click',()=>shiftCharacter(-1));
   $('character-next').addEventListener('click',()=>shiftCharacter(1));
+  let stagePointer=null,swallowStageClick=false;
+  function dropStagePointer(){
+    window.removeEventListener('pointermove',moveStagePointer);
+    window.removeEventListener('pointerup',upStagePointer);
+    window.removeEventListener('pointercancel',cancelStagePointer);
+    stagePointer=null;
+  }
+  function moveStagePointer(event){
+    if(!stagePointer||event.pointerId!==stagePointer.id)return;
+    stagePointer.lastX=event.clientX;stagePointer.lastY=event.clientY;
+    if(stagePointer.captured)return;
+    if(classifyStageGesture(event.clientX-stagePointer.x,event.clientY-stagePointer.y).kind!=='horizontal-swipe')return;
+    stagePointer.captured=true;
+    try{$('stage-track').setPointerCapture(event.pointerId);}catch{}
+  }
+  function endStagePointer(event,cancelled){
+    if(!stagePointer||event.pointerId!==stagePointer.id)return;
+    const x=cancelled?stagePointer.lastX:event.clientX;
+    const y=cancelled?stagePointer.lastY:event.clientY;
+    const gesture=classifyStageGesture(x-stagePointer.x,y-stagePointer.y);
+    dropStagePointer();
+    if(gesture.kind==='tap')return;
+    swallowStageClick=true;
+    if(!cancelled&&gesture.kind==='horizontal-swipe')shiftCharacter(gesture.delta);
+  }
+  function upStagePointer(event){endStagePointer(event,false);}
+  function cancelStagePointer(event){endStagePointer(event,true);}
+  $('stage-track').addEventListener('pointerdown',event=>{
+    if(event.isPrimary===false||(event.pointerType==='mouse'&&event.button!==0))return;
+    if(stagePointer)dropStagePointer();
+    swallowStageClick=false;
+    stagePointer={id:event.pointerId,x:event.clientX,y:event.clientY,lastX:event.clientX,lastY:event.clientY,captured:false};
+    window.addEventListener('pointermove',moveStagePointer);
+    window.addEventListener('pointerup',upStagePointer);
+    window.addEventListener('pointercancel',cancelStagePointer);
+  });
+  document.addEventListener('click',event=>{
+    if(!swallowStageClick)return;
+    const node=event.target;
+    if(!node||node.nodeType!==1||!node.closest('#stage-track'))return;
+    swallowStageClick=false;
+    event.preventDefault();
+    event.stopPropagation();
+  },true);
   $('timer-stage').addEventListener('keydown',event=>{
     if(timer.status!=='idle')return;
     if(event.key!=='ArrowLeft'&&event.key!=='ArrowRight')return;

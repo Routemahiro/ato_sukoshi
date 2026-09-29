@@ -222,6 +222,7 @@ dialog p { font-size: 13px; line-height: 1.9; }
 /* v2: illustrated eating stage. The grid item and the carried acorn are one item. */
 .snack-theater { position: relative; padding: 8px 28px 26px 13px; min-height: 300px; isolation: isolate; }
 .stage-track { position: relative; overflow: hidden; }
+.stage-track, .stage-track * { touch-action: pan-y; }
 .stage-track, .stage-pair { display: grid; grid-template-columns: minmax(0,.92fr) minmax(0,1.15fr); align-items: center; gap: 12px; }
 .stage-pair { grid-column: 1 / -1; grid-row: 1; position: relative; z-index: 1; }
 .stage-pair-out { position: absolute; inset: 0; z-index: 0; margin: 0; pointer-events: none; }
