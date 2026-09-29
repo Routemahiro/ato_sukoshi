@@ -2,7 +2,7 @@
  * UI refresh rate never changes the duration. OS clock changes remain a limitation. */
 (function (root) {
   'use strict';
-  const MODES = ['idle', 'running', 'paused', 'finished', 'acknowledged'];
+  const MODES = ['idle', 'running', 'paused', 'finished'];
   class Countdown {
     constructor(clock = () => Date.now()) {
       this.clock = clock;
@@ -24,7 +24,7 @@
       return true;
     }
     remaining(now = this.clock()) {
-      if (this.status === 'finished' || this.status === 'acknowledged') return 0;
+      if (this.status === 'finished') return 0;
       const value = this.status === 'running' ? this.endAt - now : this.remainingMs;
       return Math.min(this.durationMs, Math.max(0, value));
     }
@@ -49,11 +49,6 @@
       this.status = 'running';
       return true;
     }
-    acknowledge() {
-      if (this.status !== 'finished') return false;
-      this.status = 'acknowledged';
-      return true;
-    }
     reset(durationMs = this.durationMs) {
       if (!Countdown.validDuration(durationMs)) throw new RangeError('Invalid duration.');
       this.durationMs = durationMs;
@@ -66,15 +61,16 @@
         remainingMs: this.remaining(), endAt: this.endAt, savedAt: this.clock()};
     }
     restore(data) {
-      if (!data || data.version !== 1 || !MODES.includes(data.status) || data.status === 'idle' ||
+      const status = data && data.status === 'acknowledged' ? 'finished' : data && data.status;
+      if (!data || data.version !== 1 || !MODES.includes(status) || status === 'idle' ||
           !Countdown.validDuration(data.durationMs) || !Number.isFinite(data.savedAt) ||
           !Number.isFinite(data.remainingMs) || data.remainingMs < 0 || data.remainingMs > data.durationMs ||
-          (data.status === 'running' && (!Number.isFinite(data.endAt) || data.endAt <= 0)) ||
-          (data.status === 'paused' && data.remainingMs <= 0)) return false;
-      this.status = data.status;
+          (status === 'running' && (!Number.isFinite(data.endAt) || data.endAt <= 0)) ||
+          (status === 'paused' && data.remainingMs <= 0)) return false;
+      this.status = status;
       this.durationMs = data.durationMs;
       this.remainingMs = data.remainingMs;
-      this.endAt = data.status === 'running' ? data.endAt : null;
+      this.endAt = status === 'running' ? data.endAt : null;
       this.tick();
       return true;
     }

@@ -79,12 +79,6 @@ input[type=checkbox] { width: 18px; height: 18px; accent-color: var(--green); }
 .activity-block .activity-name { font-size: 14px; font-weight: 750; white-space: nowrap; }
 .next-arrow { font-size: 20px; color: #93a48b; }
 .current-block { opacity: .76; }
-.finish-panel { margin: 6px 26px 24px; text-align: center; position: relative; }
-.finish-panel .primary { max-width: 340px; margin: 0 auto; }
-.ack-panel { padding: 15px 25px 35px; text-align: center; }
-.ack-panel svg { width: 110px; height: 110px; display: block; margin: 0 auto 12px; }
-.ack-panel h3 { margin: 0; font-size: 26px; letter-spacing: .03em; }
-.ack-panel p { font-size: 14px; color: #5c7452; }
 .parent-hint { padding: 12px 8px 0; font-size: 11px; color: var(--muted); text-align: center; margin: 0; }
 .parent-hint strong { color: #57704c; font-weight: 600; }
 .parent-bar { display: flex; align-items: center; justify-content: space-between; gap: 15px; margin: 18px 0 0; }
@@ -115,10 +109,6 @@ body[data-mode=finished] .forest { max-height: 205px; }
 body[data-mode=finished] .next-strip .current-block, body[data-mode=finished] .next-arrow { display: none; }
 body[data-mode=finished] .next-strip .activity-name { font-size: 20px; }
 body[data-mode=finished] .next-strip .activity-block svg { width: 50px; height: 50px; }
-body[data-mode=acknowledged] .numeral, body[data-mode=acknowledged] .acorn-area,
-body[data-mode=acknowledged] .forest, body[data-mode=acknowledged] .next-strip { display: none; }
-body[data-mode=acknowledged] .stage-copy { padding-top: 35px; }
-body[data-mode=acknowledged] .stage { min-height: 510px; }
 dialog { width: min(92vw,460px); max-height: 85svh; border: 1px solid #dce2d4; padding: 27px; border-radius: 24px; background: #fffef9; color: var(--ink); box-shadow: 0 20px 80px #31422b33; }
 dialog::backdrop { background: #253b2d66; backdrop-filter: blur(3px); }
 dialog h2 { font-size: 20px; margin: 0 0 10px; }
@@ -191,8 +181,6 @@ dialog p { font-size: 13px; line-height: 1.9; }
  body[data-mode=finished] .acorn-area { margin-top: 15px; min-height: 46px; }
  body[data-mode=finished] .forest { margin: 0; max-height: 170px; }
  body[data-mode=finished] .next-strip { margin-top: 5px; }
- body[data-mode=acknowledged] .stage { min-height: 495px; }
- .ack-panel { padding-top: 40px; }
  .audio-restore { font-size: 10px; }
 }
 @media (max-width: 360px) {
@@ -258,14 +246,10 @@ body[data-mode=idle] .next-strip { display: block; margin: 0 16px 6px; padding: 
 .reserve-note { margin: 9px 0 0; font-size: 10px; text-align: center; color: #6c7c61; }
 .next-scene-panel { padding: 0 24px 4px; text-align: center; }
 .next-scene-panel img { display: block; width: min(340px,70vw); height: auto; margin: 0 auto; object-fit: contain; }
-body[data-mode=finished] .snack-theater, body[data-mode=acknowledged] .snack-theater { display: none; }
-body[data-mode=finished] .stage, body[data-mode=acknowledged] .stage { min-height: 0; }
-body[data-mode=finished] .stage-copy, body[data-mode=acknowledged] .stage-copy { padding-top: 8px; }
+body[data-mode=finished] .snack-theater { display: none; }
+body[data-mode=finished] .stage { min-height: 0; }
 body[data-mode=finished] .next-strip { margin-top: 0; padding-block: 8px; background: transparent; border-color: transparent; }
 body[data-mode=finished] .next-strip .activity-block svg, body[data-mode=finished] .activity-overline { display: none; }
-body[data-mode=acknowledged] .ack-panel { padding: 0 24px 22px; }
-body[data-mode=acknowledged] .ack-panel h3 { font-size: 23px; }
-body[data-mode=acknowledged] .ack-panel p { margin: 7px 0; }
 body:not([data-mode=idle]) .snack-theater { min-height: 330px; padding-top: 10px; padding-bottom: 25px; }
 body:not([data-mode=idle]) .next-strip { margin-top: 0; }
 .parent-gate[data-instant=true] { touch-action: manipulation; }
@@ -289,10 +273,7 @@ body[data-mode=finished] #remaining-caption { visibility: hidden; }
  .reserve-note { font-size: 9px; }
  .next-scene-panel img { width: min(275px,76vw); }
  body[data-mode=finished] .stage-copy h2 { font-size: 26px; }
- body[data-mode=acknowledged] .stage-copy h2 { font-size: 24px; }
  body[data-mode=finished] .next-strip { margin-bottom: 10px; }
- body[data-mode=finished] .finish-panel { margin-bottom: 22px; }
- body[data-mode=acknowledged] .ack-panel { padding-bottom: 30px; }
  .parent-bar { align-items: center; }
  .parent-gate { min-width: 168px; }
  body:not([data-mode=idle]) .stage { min-height: 0; }
@@ -320,9 +301,6 @@ body[data-mode=finished] #remaining-caption { visibility: hidden; }
  body:not([data-mode=idle]) .snack-theater { min-height: 176px; padding-block: 4px 12px; }
  body:not([data-mode=idle]) .next-strip { padding-block: 8px; margin-bottom: 10px; }
  .next-scene-panel img { width: min(205px,60vw); }
- body[data-mode=finished] .finish-panel { margin-bottom: 15px; }
- body[data-mode=acknowledged] .ack-panel { padding-bottom: 18px; }
- body[data-mode=acknowledged] .ack-panel h3 { font-size: 20px; }
 }
 
 /* v7: checkbox preferences live ONLY in the folded settings, not in the timer choices. */
@@ -355,8 +333,8 @@ body[data-mode=finished] #remaining-caption { visibility: hidden; }
 .finished-parent-buttons button:last-child:hover { background: #eee7d9; }
 .finished-parent-buttons button:active { background: #dbe6ce; }
 .finished-parent-buttons button:last-child:active { background: #e5dac7; }
-body[data-mode=finished] .parent-bar, body[data-mode=acknowledged] .parent-bar { justify-content: flex-end; padding-bottom: env(safe-area-inset-bottom, 0px); }
-body[data-mode=finished] .device-status, body[data-mode=acknowledged] .device-status { display: none; }
+body[data-mode=finished] .parent-bar { justify-content: flex-end; padding-bottom: env(safe-area-inset-bottom, 0px); }
+body[data-mode=finished] .device-status { display: none; }
 @media (max-width: 700px) {
   .finished-parent-actions { width: 100%; }
 }

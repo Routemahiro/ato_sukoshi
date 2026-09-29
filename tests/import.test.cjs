@@ -39,7 +39,18 @@ test('mouse theme is registered beside elephant',()=>{
 });
 for(const d of [1000,20000,60000,180000,300000,600000,900000,1200000,1800000,2700000,3600000])test(`exact deadline ${d}`,()=>{let now=1000;const t=new Countdown(()=>now);t.start(d);now+=d-1;assert.equal(t.remaining(),1);assert.equal(t.tick(),false);now++;assert.equal(t.tick(),true);assert.equal(t.tick(),false);});
 test('pause freezes remaining time',()=>{let now=1000;const t=new Countdown(()=>now);t.start(20000);now+=4123;t.pause();now+=600000;assert.equal(t.remaining(),15877);t.resume();now+=15877;assert.ok(t.tick());});
-test('acknowledgement follows finish',()=>{let now=1;const t=new Countdown(()=>now);t.start(1000);assert.equal(t.acknowledge(),false);now+=1000;t.tick();assert.equal(t.acknowledge(),true);assert.equal(t.status,'acknowledged');});
+test('finish stays the end state and legacy acknowledged sessions restore as finished',()=>{
+  let now=1;const t=new Countdown(()=>now);
+  assert.equal(typeof t.acknowledge,'undefined');
+  t.start(1000);now+=1000;assert.equal(t.tick(),true);assert.equal(t.status,'finished');assert.equal(t.remaining(),0);
+  const snap=t.snapshot();snap.status='acknowledged';
+  const restored=new Countdown(()=>now);
+  assert.equal(restored.restore(snap),true);
+  assert.equal(restored.status,'finished');
+  assert.equal(restored.remaining(),0);
+  assert.equal(restored.durationMs,1000);
+  assert.equal(restored.restore({version:1,status:'celebrating',durationMs:1000,remainingMs:0,endAt:null,savedAt:now}),false);
+});
 test('positive fractions do not display zero',()=>assert.equal(formatTime(1),'00:01'));
 for(const [ms,phase]of [[0,'reach'],[1999,'reach'],[2000,'chew'],[7999,'chew'],[8000,'settle'],[9999,'settle']])test(`preserved animation phase ${ms}`,()=>assert.equal(snackState(20000,20000-ms).phase,phase));
 test('short remainder keeps its deadline',()=>{assert.equal(snackState(11000,100).stepMs,1000);assert.equal(snackState(11000,0).phase,'complete');});

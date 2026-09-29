@@ -13,12 +13,13 @@ function at(source, needle) {
   return index;
 }
 
-test('release version is 9.2.0', () => {
-  assert.ok(html.includes('content="9.2.0"'));
+test('release version is 9.3.0', () => {
+  assert.ok(html.includes('content="9.3.0"'));
   const pkg = JSON.parse(fs.readFileSync(path.join(root, 'package.json'), 'utf8'));
-  assert.equal(pkg.version, '9.2.0');
+  assert.equal(pkg.version, '9.3.0');
   const notes = fs.readFileSync(path.join(root, 'CHANGELOG.md'), 'utf8');
-  assert.ok(notes.includes('## 9.2.0'));
+  assert.ok(notes.includes('## 9.3.0'));
+  assert.equal(notes.includes('## 9.2.0'), true);
   assert.equal(notes.includes('## 9.1.0'), true);
 });
 
@@ -99,6 +100,27 @@ test('app wires disabling, cycling, migration, and the food icon', () => {
   assert.equal(app.includes('acorn-unit'), false);
   assert.equal(app.includes('snack-timing-note'), false);
   assert.equal(app.includes('cycleCharacter('), false);
+});
+
+test('the finished screen is the only end state', () => {
+  assert.equal(html.includes('つぎへ いこう'), false);
+  assert.equal(html.includes('id="ack-button"'), false);
+  assert.equal(html.includes('id="ack-panel"'), false);
+  assert.equal(html.includes('id="finish-panel"'), false);
+  assert.equal(html.includes('id="ack-title"'), false);
+  assert.ok(html.includes('id="next-scene-panel"'));
+  assert.ok(html.includes('id="finished-restart-button"'));
+  assert.ok(html.includes('id="finished-reset-button"'));
+  assert.equal(app.includes('acknowledged'), false);
+  assert.equal(app.includes('acknowledge'), false);
+  assert.equal(app.includes('ack-button'), false);
+  assert.equal(css.includes('acknowledged'), false);
+  assert.equal(css.includes('.ack-panel'), false);
+  assert.equal(css.includes('.finish-panel'), false);
+  assert.ok(app.includes("title.textContent='おしまいの じかん'"));
+  assert.ok(app.includes("sub.textContent=ch.label+'も、つぎの じゅんび。'"));
+  assert.ok(app.includes("$('stage-title').focus({preventScroll:true})"));
+  assert.equal(app.includes("?'ack-button'"), false);
 });
 
 test('chevrons sit above the animal and the pair slides inside a clip', () => {

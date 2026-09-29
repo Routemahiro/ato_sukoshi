@@ -200,7 +200,7 @@
     pose.style.transform=`translateY(${bob}px) rotate(${rot}deg) scale(${sx}, ${sy})`;
   }
   function renderSnacks(){
-    if(['finished','acknowledged'].includes(timer.status)){cancelAnimationFrame(raf);raf=0;return;}
+    if(timer.status==='finished'){cancelAnimationFrame(raf);raf=0;return;}
     const s=snackState(timer.durationMs,timer.remaining());
     buildGrid(s);
     const moving=timer.status==='running'||timer.status==='paused';
@@ -240,7 +240,7 @@
   }
   function render(force=false){
     const mode=timer.status,changed=lastMode!==mode,sel=choices(),ch=character();
-    const completed=mode==='finished'||mode==='acknowledged';
+    const completed=mode==='finished';
     const wasParentOpen=completed&&$('parent-dialog').open;
     // A menu left open at the deadline must not cover the completion screen.
     if(wasParentOpen)$('parent-dialog').close();
@@ -249,18 +249,17 @@
     $('finished-parent-actions').hidden=!completed;
     $('state-tag').hidden=mode==='idle';
     $('numeral').hidden=mode==='idle'||!prefs.digits;
-    $('parent-bar').hidden=mode==='idle';$('finish-panel').hidden=mode!=='finished';$('ack-panel').hidden=mode!=='acknowledged';
-    $('next-scene-panel').hidden=mode!=='finished'&&mode!=='acknowledged';
+    $('parent-bar').hidden=mode==='idle';
+    $('next-scene-panel').hidden=!completed;
     if(mode!=='running')$('audio-restore').hidden=true;
     if(force||changed){
-      $('state-label').textContent={idle:'じゅんび中',running:demo?'おためし中':'タイマー中',paused:'おやすみ中',finished:'おしまい',acknowledged:'つぎの じかん'}[mode];
+      $('state-label').textContent={idle:'じゅんび中',running:demo?'おためし中':'タイマー中',paused:'おやすみ中',finished:'おしまい'}[mode];
       const title=$('stage-title'),sub=$('stage-subtitle');
       if(mode==='finished'){title.textContent='おしまいの じかん';sub.textContent=ch.label+'も、つぎの じゅんび。';}
-      else if(mode==='acknowledged'){title.textContent='いっしょに、はじめよう。';sub.textContent='タイマーは、ここで おしまい。';}
       else if(mode==='paused'){title.textContent='ちょっと、ひとやすみ。';sub.textContent='じかんは とまっているよ。';}
       else{title.replaceChildren(document.createTextNode(ch.snack+'が なくなったら'),document.createElement('br'),document.createTextNode('おしまい。'));sub.textContent=mode==='idle'?'':'10びょうごとに、ひとつ パクパク。';}
       $('next-icon').setAttribute('href','#i-'+sel.next);
-      $('next-label').textContent=NEXT[sel.next];$('ack-title').textContent=NEXT[sel.next]+'の じかん';
+      $('next-label').textContent=NEXT[sel.next];
       $('parent-hint-quote').textContent='「ぜんぶ なくなったら、'+NEXT[sel.next]+'しようね」';
       $('pause-button').hidden=!holdRequired();$('pause-button').textContent=mode==='paused'?'つづきから はじめる':'いったん とめる';
       $('parent-gate').dataset.instant='false';
@@ -274,14 +273,14 @@
     const remaining=timer.remaining(),seconds=Math.ceil(remaining/1000);
     if(force||changed||lastSeconds!==seconds){
       const text=formatTime(remaining);$('time-display').textContent=text;$('time-display').setAttribute('aria-label','残り'+timeWords(remaining));
-      $('parent-timer-summary').textContent=mode==='finished'||mode==='acknowledged'?timeWords(timer.durationMs)+'のタイマーが終了しました':'残り '+text+(mode==='paused'?'（一時停止中）':'');
+      $('parent-timer-summary').textContent=mode==='finished'?timeWords(timer.durationMs)+'のタイマーが終了しました':'残り '+text+(mode==='paused'?'（一時停止中）':'');
       $('acorn-area').setAttribute('aria-valuetext','残り'+timeWords(remaining));$('acorn-area').setAttribute('aria-valuenow',String(Math.round(remaining/timer.durationMs*100)));
       document.title=holdRequired()?text+' · あとすこし':'あとすこし — おしまいが見えるタイマー';lastSeconds=seconds;
     }
     renderSnacks();lastMode=mode;
     // Never leave keyboard focus on a menu trigger that just became hidden.
     if(!document.hidden&&completed&&(changed||wasParentOpen)){
-      $(mode==='finished'?'ack-button':'stage-title').focus({preventScroll:true});
+      $('stage-title').focus({preventScroll:true});
     }
   }
   function finishEffects(deadline){
@@ -493,16 +492,13 @@
   $('start-button').addEventListener('click',()=>begin(false));$('demo-button').addEventListener('click',()=>begin(true));
   $('restart-button').addEventListener('click',restart);
   $('finished-restart-button').addEventListener('click',()=>{
-    if(timer.status==='finished'||timer.status==='acknowledged')restart();
+    if(timer.status==='finished')restart();
   });
   $('finished-reset-button').addEventListener('click',()=>{
-    if(timer.status==='finished'||timer.status==='acknowledged')reset();
+    if(timer.status==='finished')reset();
   });
   // Deliberately one action, with no additional confirmation dialog.
   $('request-reset').addEventListener('click',reset);
-  $('ack-button').addEventListener('click',()=>{
-    if(!timer.acknowledge())return;stopSound();saveSession();render(true);announce(NEXT[choices().next]+'の時間です。');$('stage-title').focus({preventScroll:true});
-  });
   $('parent-gate').addEventListener('pointerdown',event=>{
     if(event.button!==0||!holdRequired())return;event.preventDefault();$('parent-gate').focus({preventScroll:true});try{$('parent-gate').setPointerCapture(event.pointerId);}catch{}startGate();
   });
