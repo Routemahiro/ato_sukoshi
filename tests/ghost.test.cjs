@@ -107,3 +107,53 @@ test('flourish skips complete phase and short final items',()=>{
   }
   assert.equal(shown,true);
 });
+
+function characters(){
+  const js=read('src/app.js');
+  const start=js.indexOf('const CHARACTERS=Object.freeze({');
+  const end=js.indexOf('\n  });',start);
+  assert.ok(start>=0&&end>start);
+  return vm.runInNewContext(js.slice(start+'const CHARACTERS='.length,end)+'\n  })');
+}
+
+test('ghost is registered with doughnut landing and a per-item flourish',()=>{
+  const js=read('src/app.js'),html=read('index.html');
+  const chars=characters();
+  const g=chars.ghost;
+  assert.equal(g.id,'ghost');
+  assert.equal(g.label,'おばけさん');
+  assert.equal(g.snack,'ドーナツ');
+  assert.equal(g.snackIcon,'doughnut.svg');
+  assert.equal(g.ready,'ghost-ready.webp');
+  assert.equal(g.chew(3),'ghost-chew-3.webp');
+  assert.equal(g.nextScene('sleep'),'ghost-next-sleep.webp');
+  assert.deepEqual(g.land,[.514,.509]);
+  assert.equal(g.landSize,.40);
+  assert.deepEqual(g.flourish,{frame:'ghost-lick.webp',holdMs:1200,showMs:800,chance:.5});
+  for(const alt of ['おもちゃを片付けるおばけさん','ごはんを食べるおばけさん','おふろに入るおばけさん','リュックを背負って出かけるおばけさん','歯みがきするおばけさん','おふとんで眠るおばけさん'])assert.ok(js.includes(alt),alt);
+  assert.ok(html.indexOf('data-character="mouse"')<html.indexOf('data-character="ghost"'));
+  assert.ok(html.includes('id="finish-flourish"'));
+  assert.ok(js.includes('character().landSize||.182'));
+  assert.ok(js.includes('character().land||[.846,.612]'));
+});
+
+test('other characters have no flourish and share snackState',()=>{
+  const chars=characters();
+  assert.deepEqual(Object.keys(chars).filter(id=>chars[id].flourish),['ghost']);
+  assert.deepEqual(Object.keys(chars).filter(id=>chars[id].landSize!==undefined),['ghost']);
+  const samples=[0,1990,5000,7334,8000,8534,8900,9333,9400,9999];
+  for(const id of ['squirrel','elephant','mouse']){
+    let calls=0;
+    const spy=(index,chance)=>{calls++;return true;};
+    for(const ms of samples){
+      assert.equal(finishFlourish(at(ms),chars[id].flourish,spy),false,id+' '+ms);
+    }
+    for(let ms=0;ms<10000;ms+=1)assert.equal(finishFlourish(at(ms),chars[id].flourish,spy),false);
+    assert.equal(calls,0,id);
+  }
+  for(const ms of samples){
+    const base=snackState(10000,10000-ms);
+    for(const id of ['squirrel','elephant','mouse','ghost'])assert.deepEqual(snackState(10000,10000-ms,id),base,id+' '+ms);
+  }
+  assert.equal(snackState(20000,1,'ghost').phase,snackState(20000,1,'squirrel').phase);
+});
