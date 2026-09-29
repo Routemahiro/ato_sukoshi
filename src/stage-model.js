@@ -134,11 +134,28 @@
     };
   }
 
+  const SWIPE_MIN_PX = 40;
+  const SWIPE_AXIS_RATIO = 1.5;
+
+  function classifyStageGesture(dx, dy) {
+    const x = Number(dx);
+    const y = Number(dy);
+    if (!Number.isFinite(x) || !Number.isFinite(y)) return {kind: 'tap', delta: 0};
+    const adx = Math.abs(x);
+    const ady = Math.abs(y);
+    if (adx >= SWIPE_MIN_PX && adx > SWIPE_AXIS_RATIO * ady) {
+      return {kind: 'horizontal-swipe', delta: x < 0 ? 1 : -1};
+    }
+    if (adx >= SWIPE_MIN_PX || ady >= SWIPE_MIN_PX) return {kind: 'vertical-scroll', delta: 0};
+    return {kind: 'tap', delta: 0};
+  }
+
   const api = {
     PRESET_SECONDS, DEFAULT_VISIBLE_PRESETS, CHARACTER_ORDER, NEXT_IDS, CURRENT_IDS,
     PREF_KEY, LEGACY_PREF_KEYS, nearestEnabledSeconds, sanitizePreferences,
     applyVisiblePresets, cycleCharacter, characterMotion, createSlideState,
-    reduceCharacterSlide, settleCharacterSlide, abortCharacterSlide
+    reduceCharacterSlide, settleCharacterSlide, abortCharacterSlide,
+    SWIPE_MIN_PX, SWIPE_AXIS_RATIO, classifyStageGesture
   };
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
   else root.AtosukoshiStage = api;
