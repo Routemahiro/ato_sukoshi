@@ -59,6 +59,17 @@
       progress:clamp(remainingMs/durationMs,0,1)};
   }
   const api={snackState,STEP,PAGE_SIZE,CHEW_SEQUENCE,CHEW_FRAME_COUNT,CHEW_FINAL_FRAME,CHEW_SOUND_COUNT};
+  const FINISH_RATIO=REACH_RATIO+CHEW_RATIO*CHEW_FINAL_FRAME/CHEW_SEQUENCE.length; // .7333: the moment slot 8 (the finished frame) begins
+  function createFlourishPicker(rng=()=>Math.random()){const memo=new Map();return (index,chance)=>{if(!memo.has(index))memo.set(index,rng()<chance);return memo.get(index);};}
+  function finishFlourish(state,flourish,pick){
+    if(!flourish||(state.phase!=='chew'&&state.phase!=='settle')||state.frame!==CHEW_FINAL_FRAME)return false;
+    const start=state.stepMs*FINISH_RATIO+flourish.holdMs,end=start+flourish.showMs;
+    if(end>state.stepMs||state.localElapsed<start||state.localElapsed>=end)return false;
+    return pick(state.index,flourish.chance);
+  }
+  api.FINISH_RATIO=FINISH_RATIO;
+  api.createFlourishPicker=createFlourishPicker;
+  api.finishFlourish=finishFlourish;
   if (typeof module!=='undefined' && module.exports) module.exports=api;
   else root.AtosukoshiSnacks=api;
 })(typeof globalThis!=='undefined'?globalThis:this);

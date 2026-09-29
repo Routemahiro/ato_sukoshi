@@ -1,5 +1,6 @@
 const test=require('node:test'),assert=require('node:assert/strict');
 const fs=require('node:fs'),path=require('node:path'),vm=require('node:vm'),crypto=require('node:crypto');
+const {snackState,finishFlourish,createFlourishPicker}=require('../src/snack-core.js');
 const root=path.resolve(__dirname,'..');
 const read=n=>fs.readFileSync(path.join(root,n),'utf8');
 
@@ -45,4 +46,64 @@ test('ghost data URLs match the upload and next-gen files',()=>{
   assert.equal(new Set(chew).size,9);
   assert.notEqual(a['ghost-lick.webp'],a['ghost-chew-8.webp']);
   assert.notEqual(a['ghost-ready.webp'],a['ghost-chew-8.webp']);
+});
+
+const FLOURISH={frame:'ghost-lick.webp',holdMs:1200,showMs:800,chance:.5};
+const at=(ms,duration=10000)=>snackState(duration,duration-ms);
+
+test('tongue branch shows only inside the finished hold window',()=>{
+  const pick=createFlourishPicker(()=>0);
+  for(const ms of [1990,5000,7334,8000,8500,9400,9999])assert.equal(finishFlourish(at(ms),FLOURISH,pick),false,String(ms));
+  for(const ms of [8600,9300])assert.equal(finishFlourish(at(ms),FLOURISH,pick),true,String(ms));
+  assert.equal(finishFlourish(at(8533),FLOURISH,pick),false);
+  assert.equal(finishFlourish(at(8534),FLOURISH,pick),true);
+  assert.equal(finishFlourish(at(9333),FLOURISH,pick),true);
+  assert.equal(finishFlourish(at(9334),FLOURISH,pick),false);
+});
+
+test('no-tongue branch stays on the finished frame',()=>{
+  const pick=createFlourishPicker(()=>.99);
+  for(let ms=0;ms<10000;ms++)assert.equal(finishFlourish(at(ms),FLOURISH,pick),false,String(ms));
+});
+
+test('flourish roll is once per item and lazy',()=>{
+  let calls=0;
+  const pick=createFlourishPicker(()=>{calls++;return 0;});
+  for(let ms=0;ms<20000;ms++)finishFlourish(at(ms,20000),FLOURISH,pick);
+  assert.equal(calls,2);
+  calls=0;
+  const early=createFlourishPicker(()=>{calls++;return 0;});
+  for(let ms=0;ms<8533;ms++)finishFlourish(at(ms),FLOURISH,early);
+  assert.equal(calls,0);
+  let n=0;
+  const rng=()=>{n++;return n===1?0:.99;};
+  const again=createFlourishPicker(rng);
+  const later=createFlourishPicker(rng);
+  const state=at(8600);
+  assert.equal(finishFlourish(state,FLOURISH,again),true);
+  assert.equal(finishFlourish(state,FLOURISH,again),true);
+  assert.equal(finishFlourish(state,FLOURISH,later),false);
+  assert.equal(n,2);
+});
+
+test('flourish skips complete phase and short final items',()=>{
+  const pick=createFlourishPicker(()=>0);
+  const done=snackState(10000,0);
+  assert.equal(done.phase,'complete');
+  assert.equal(finishFlourish(done,FLOURISH,pick),false);
+  for(const duration of [11000,17400]){
+    const last=Math.ceil(duration/10000)-1;
+    for(let ms=0;ms<duration;ms++){
+      const state=at(ms,duration);
+      if(state.index!==last)continue;
+      assert.equal(finishFlourish(state,FLOURISH,pick),false,duration+' '+ms);
+    }
+  }
+  const duration=17500,last=Math.ceil(duration/10000)-1;
+  let shown=false;
+  for(let ms=0;ms<duration;ms++){
+    const state=at(ms,duration);
+    if(state.index===last&&finishFlourish(state,FLOURISH,pick))shown=true;
+  }
+  assert.equal(shown,true);
 });
