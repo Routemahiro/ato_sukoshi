@@ -101,6 +101,27 @@ test('app wires disabling, cycling, migration, and the food icon', () => {
   assert.equal(app.includes('cycleCharacter('), false);
 });
 
+test('the finished screen is the only end state', () => {
+  assert.equal(html.includes('つぎへ いこう'), false);
+  assert.equal(html.includes('id="ack-button"'), false);
+  assert.equal(html.includes('id="ack-panel"'), false);
+  assert.equal(html.includes('id="finish-panel"'), false);
+  assert.equal(html.includes('id="ack-title"'), false);
+  assert.ok(html.includes('id="next-scene-panel"'));
+  assert.ok(html.includes('id="finished-restart-button"'));
+  assert.ok(html.includes('id="finished-reset-button"'));
+  assert.equal(app.includes('acknowledged'), false);
+  assert.equal(app.includes('acknowledge'), false);
+  assert.equal(app.includes('ack-button'), false);
+  assert.equal(css.includes('acknowledged'), false);
+  assert.equal(css.includes('.ack-panel'), false);
+  assert.equal(css.includes('.finish-panel'), false);
+  assert.ok(app.includes("title.textContent='おしまいの じかん'"));
+  assert.ok(app.includes("sub.textContent=ch.label+'も、つぎの じゅんび。'"));
+  assert.ok(app.includes("$('stage-title').focus({preventScroll:true})"));
+  assert.equal(app.includes("?'ack-button'"), false);
+});
+
 test('chevrons sit above the animal and the pair slides inside a clip', () => {
   assert.ok(html.includes('class="character-switch setup-only"'));
   assert.ok(html.includes('aria-label="まえの なかま"'));
