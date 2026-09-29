@@ -72,6 +72,10 @@ test('app wires disabling, cycling, migration, and the food icon', () => {
   assert.ok(app.includes('reduceCharacterSlide(slide,delta)'));
   assert.ok(app.includes('shiftCharacter(-1)'));
   assert.ok(app.includes('shiftCharacter(1)'));
+  assert.ok(app.includes('classifyStageGesture('));
+  assert.ok(app.includes('shiftCharacter(gesture.delta)'));
+  assert.ok(app.includes("gesture.kind==='horizontal-swipe'"));
+  assert.ok(app.includes('swallowStageClick'));
   assert.ok(app.includes("event.key!=='ArrowLeft'&&event.key!=='ArrowRight'"));
   assert.ok(app.includes('abortCharacterSlide(slide)'));
   assert.ok(app.includes('reduced.matches'));
@@ -110,6 +114,7 @@ test('chevrons sit above the animal and the pair slides inside a clip', () => {
   assert.ok(css.includes('background: none'));
   assert.ok(css.includes('box-shadow: none'));
   assert.ok(css.includes('.stage-track { position: relative; overflow: hidden; }'));
+  assert.ok(css.includes('.stage-track, .stage-track * { touch-action: pan-y; }'));
   assert.ok(css.includes('body[data-mode=idle] .squirrel-space { padding-top: 36px; }'));
   assert.ok(css.includes('.stage-pair-out'));
 });
