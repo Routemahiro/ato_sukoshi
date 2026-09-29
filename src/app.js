@@ -19,7 +19,7 @@
   const CHARACTERS=Object.freeze({
     squirrel:{id:'squirrel',label:'りすさん',snack:'どんぐり',ready:'squirrel-ready.webp',chew:i=>'chew-'+i+'.webp',snackIcon:'acorn.svg',nextScene:k=>'next-'+k+'.webp'},
     elephant:{id:'elephant',label:'ぞうさん',snack:'りんご',ready:'elephant-ready.webp',chew:i=>'elephant-chew-'+i+'.webp',snackIcon:'apple.svg',nextScene:k=>'elephant-next-'+k+'.webp'},
-    mouse:{id:'mouse',label:'ねずみさん',snack:'ビスケット',ready:'mouse-ready.webp',chew:i=>'mouse-chew-'+i+'.webp',snackIcon:'biscuit.svg',nextScene:k=>'mouse-next-'+k+'.webp',land:[.639,.613]}
+    mouse:{id:'mouse',label:'ねずみさん',snack:'ビスケット',ready:'mouse-ready.webp',chew:i=>'mouse-chew-'+i+'.webp',snackIcon:'biscuit.svg',nextScene:k=>'mouse-next-'+k+'.webp',land:[.668,.542]}
   });
   const PRESET_SECONDS=Object.freeze([60,180,300,600,900,1200,1800,2700,3600]);
   const DEFAULT_VISIBLE_PRESETS=Object.freeze([60,180,300,600]);
