@@ -834,10 +834,72 @@ body[data-mode=finished] .device-status, body[data-mode=acknowledged] .device-st
     return CHARACTER_ORDER[(base + step) % count];
   }
 
+  const SLIDE_MS = 300;
+
+  /* direction 1 (next): the pair moves left and the new pair enters from the right.
+   * direction -1 (previous): the opposite. The live pair commits immediately, so a
+   * newer tap retargets from that destination instead of the outgoing picture. */
+  function characterMotion(fromId, delta) {
+    const step = Number.isInteger(delta) ? delta : 0;
+    const direction = step > 0 ? 1 : step < 0 ? -1 : 0;
+    return {
+      from: fromId,
+      to: cycleCharacter(fromId, step),
+      direction,
+      durationMs: SLIDE_MS,
+      easing: 'ease-out'
+    };
+  }
+
+  function createSlideState(showing) {
+    return {phase: 'rest', showing, from: showing, direction: 0, generation: 0};
+  }
+
+  function reduceCharacterSlide(state, delta) {
+    const motion = characterMotion(state.showing, delta);
+    if (!motion.direction || motion.to === state.showing) return {state, action: 'none', motion: null};
+    const next = {
+      phase: 'sliding',
+      showing: motion.to,
+      from: state.showing,
+      direction: motion.direction,
+      generation: state.generation + 1
+    };
+    return {
+      state: next,
+      action: state.phase === 'sliding' ? 'retarget' : 'start',
+      motion: {
+        from: state.showing,
+        to: motion.to,
+        direction: motion.direction,
+        durationMs: motion.durationMs,
+        easing: motion.easing,
+        generation: next.generation
+      }
+    };
+  }
+
+  function settleCharacterSlide(state, generation) {
+    if (!state || state.phase !== 'sliding' || state.generation !== generation) return {state, action: 'ignore'};
+    return {
+      state: {phase: 'rest', showing: state.showing, from: state.showing, direction: 0, generation: state.generation},
+      action: 'clear'
+    };
+  }
+
+  function abortCharacterSlide(state) {
+    if (!state || state.phase !== 'sliding') return {state, action: 'ignore'};
+    return {
+      state: {phase: 'rest', showing: state.showing, from: state.showing, direction: 0, generation: state.generation + 1},
+      action: 'snap'
+    };
+  }
+
   const api = {
     PRESET_SECONDS, DEFAULT_VISIBLE_PRESETS, CHARACTER_ORDER, NEXT_IDS, CURRENT_IDS,
     PREF_KEY, LEGACY_PREF_KEYS, nearestEnabledSeconds, sanitizePreferences,
-    applyVisiblePresets, cycleCharacter
+    applyVisiblePresets, cycleCharacter, characterMotion, createSlideState,
+    reduceCharacterSlide, settleCharacterSlide, abortCharacterSlide
   };
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
   else root.AtosukoshiStage = api;

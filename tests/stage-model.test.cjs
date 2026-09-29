@@ -2,7 +2,8 @@ const test = require('node:test');
 const assert = require('node:assert/strict');
 const {
   PRESET_SECONDS, DEFAULT_VISIBLE_PRESETS, CHARACTER_ORDER, PREF_KEY, LEGACY_PREF_KEYS,
-  nearestEnabledSeconds, sanitizePreferences, applyVisiblePresets, cycleCharacter
+  nearestEnabledSeconds, sanitizePreferences, applyVisiblePresets, cycleCharacter,
+  characterMotion, createSlideState, reduceCharacterSlide, settleCharacterSlide, abortCharacterSlide
 } = require('../src/stage-model.js');
 
 test('schema key moves to v3 and still names the old keys', () => {
@@ -93,4 +94,59 @@ test('character cycle wraps squirrel, elephant, mouse, ghost', () => {
 
 test('preset catalogue stays the nine minute marks', () => {
   assert.deepEqual([...PRESET_SECONDS], [60, 180, 300, 600, 900, 1200, 1800, 2700, 3600]);
+});
+
+test('next slides left and previous slides right within the ease-out window', () => {
+  const next = characterMotion('squirrel', 1);
+  assert.equal(next.from, 'squirrel');
+  assert.equal(next.to, 'elephant');
+  assert.equal(next.direction, 1);
+  assert.equal(next.easing, 'ease-out');
+  assert.ok(next.durationMs >= 250 && next.durationMs <= 350);
+  const prev = characterMotion('squirrel', -1);
+  assert.equal(prev.to, 'ghost');
+  assert.equal(prev.direction, -1);
+  assert.equal(characterMotion('mouse', 0).direction, 0);
+  assert.equal(characterMotion('mouse', 1.5).direction, 0);
+});
+
+test('rapid slides commit the latest character and ignore a stale settle', () => {
+  let state = createSlideState('squirrel');
+  const seen = [];
+  for (let i = 0; i < 5; i++) {
+    const step = reduceCharacterSlide(state, 1);
+    assert.equal(step.action, i === 0 ? 'start' : 'retarget');
+    assert.equal(step.motion.direction, 1);
+    assert.equal(step.motion.from, state.showing);
+    state = step.state;
+    seen.push(state.showing);
+    assert.equal(state.phase, 'sliding');
+  }
+  assert.deepEqual(seen, ['elephant', 'mouse', 'ghost', 'squirrel', 'elephant']);
+  const stale = settleCharacterSlide(state, state.generation - 1);
+  assert.equal(stale.action, 'ignore');
+  assert.equal(stale.state.phase, 'sliding');
+  const settled = settleCharacterSlide(state, state.generation);
+  assert.equal(settled.action, 'clear');
+  assert.equal(settled.state.phase, 'rest');
+  assert.equal(settled.state.showing, 'elephant');
+  assert.equal(settleCharacterSlide(settled.state, settled.state.generation).action, 'ignore');
+});
+
+test('abort snaps to the committed character and drops an in-flight settle', () => {
+  let state = createSlideState('ghost');
+  state = reduceCharacterSlide(state, -1).state;
+  assert.equal(state.showing, 'mouse');
+  assert.equal(state.direction, -1);
+  const generation = state.generation;
+  const snapped = abortCharacterSlide(state);
+  assert.equal(snapped.action, 'snap');
+  assert.equal(snapped.state.phase, 'rest');
+  assert.equal(snapped.state.showing, 'mouse');
+  assert.ok(snapped.state.generation > generation);
+  assert.equal(settleCharacterSlide(snapped.state, generation).action, 'ignore');
+  assert.equal(abortCharacterSlide(snapped.state).action, 'ignore');
+  let back = createSlideState('squirrel');
+  for (let i = 0; i < 5; i++) back = reduceCharacterSlide(back, -1).state;
+  assert.equal(back.showing, 'ghost');
 });
