@@ -127,9 +127,9 @@ test('ghost is registered with doughnut landing and a per-item flourish',()=>{
   assert.equal(g.ready,'ghost-ready.webp');
   assert.equal(g.chew(3),'ghost-chew-3.webp');
   assert.equal(g.nextScene('sleep'),'ghost-next-sleep.webp');
-  assert.deepEqual(g.land,[.514,.509]);
+  assert.deepEqual([...g.land],[.514,.509]);
   assert.equal(g.landSize,.40);
-  assert.deepEqual(g.flourish,{frame:'ghost-lick.webp',holdMs:1200,showMs:800,chance:.5});
+  assert.deepEqual({...g.flourish},{frame:'ghost-lick.webp',holdMs:1200,showMs:800,chance:.5});
   for(const alt of ['おもちゃを片付けるおばけさん','ごはんを食べるおばけさん','おふろに入るおばけさん','リュックを背負って出かけるおばけさん','歯みがきするおばけさん','おふとんで眠るおばけさん'])assert.ok(js.includes(alt),alt);
   assert.ok(html.indexOf('data-character="mouse"')<html.indexOf('data-character="ghost"'));
   assert.ok(html.includes('id="finish-flourish"'));
