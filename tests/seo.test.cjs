@@ -105,6 +105,27 @@ print(json.dumps({"tag": root.tag, "urls": urls}))
   assert.equal(raw.includes('<loc>' + CANONICAL + '</loc>'), true);
 });
 
+test('deploy staging copies the shipped registry into deploy/', async () => {
+  const { shippedFiles } = await import('../scripts/shipped-files.mjs');
+  const names = shippedFiles.map(file => file.name);
+  assert.equal(new Set(names).size, names.length);
+  execFileSync(process.execPath, ['scripts/stage-deploy.mjs'], { cwd: root, encoding: 'utf8' });
+  assert.deepEqual(fs.readdirSync(path.join(root, 'deploy')).sort(), [...names].sort());
+  for (const file of shippedFiles) {
+    assert.equal(
+      read(path.join('deploy', file.name)).equals(read(file.source)),
+      true,
+      file.name
+    );
+  }
+  const yml = read('.github/workflows/deploy.yml').toString('utf8');
+  assert.equal((yml.match(/node scripts\/stage-deploy\.mjs/g) || []).length, 1);
+  assert.equal((yml.match(/local-dir: deploy\//g) || []).length, 3);
+  assert.equal(yml.includes('workflow_dispatch'), true);
+  assert.equal(yml.includes('dangerous-clean-slate'), false);
+  assert.equal(yml.includes('cp index.html deploy/'), false);
+});
+
 test('favicon PNG, apple touch icon, and favicon.ico have the expected sizes', () => {
   const png = pngInfo('public/favicon-96.png');
   assert.equal(png.width, 96);
