@@ -1,5 +1,13 @@
 # Changelog
 
+## 9.5.0
+
+公開ページの検索向けの基本を足した。
+
+- canonical は https://geneshokai.com/ato-sukoshi/ 。
+- 同じ公開ディレクトリに sitemap.xml、favicon-96.png、apple-touch-icon.png、favicon.ico を置く。
+- タイマーの動き、表示文言、アニメーションは変えていない。
+
 ## 9.4.0
 
 ページのいちばん下に、着想のクレジットを足した。
