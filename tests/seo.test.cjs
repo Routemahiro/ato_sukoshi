@@ -1,11 +1,15 @@
 const test = require('node:test');
 const assert = require('node:assert/strict');
+const crypto = require('node:crypto');
 const fs = require('node:fs');
 const path = require('node:path');
 const {execFileSync} = require('node:child_process');
 
 const root = path.resolve(__dirname, '..');
 const CANONICAL = 'https://geneshokai.com/ato-sukoshi/';
+const GSC_FILE = 'googlec3eaef4e4d6e686f.html';
+const GSC_SHA256 = 'c7c2dc2c3190a944774f2752a66b5029fff487175d4d9b4594254842482acc27';
+const GSC_BODY = Buffer.from('google-site-verification: googlec3eaef4e4d6e686f.html', 'ascii');
 
 function read(rel) {
   return fs.readFileSync(path.join(root, rel));
@@ -103,6 +107,27 @@ print(json.dumps({"tag": root.tag, "urls": urls}))
   const raw = read('public/sitemap.xml').toString('utf8');
   assert.equal((raw.match(/<loc>/g) || []).length, 1);
   assert.equal(raw.includes('<loc>' + CANONICAL + '</loc>'), true);
+  assert.equal(raw.includes('googlec3eaef4e4d6e686f'), false);
+});
+
+test('google site verification file is the exact 53 bytes and is not a sitemap URL', async () => {
+  const file = read('public/' + GSC_FILE);
+  assert.equal(file.length, 53);
+  assert.deepEqual(file, GSC_BODY);
+  assert.equal(file.includes(0x0a), false);
+  assert.equal(file.includes(0x0d), false);
+  assert.equal(file[0], 0x67);
+  assert.equal(crypto.createHash('sha256').update(file).digest('hex'), GSC_SHA256);
+  const sitemap = read('public/sitemap.xml').toString('utf8');
+  assert.equal(sitemap.includes(GSC_FILE), false);
+  assert.equal(sitemap.includes('google-site-verification'), false);
+  const { shippedFiles } = await import('../scripts/shipped-files.mjs');
+  assert.deepEqual(
+    shippedFiles.find(entry => entry.name === GSC_FILE),
+    { source: 'public/' + GSC_FILE, name: GSC_FILE }
+  );
+  const attrs = read('.gitattributes').toString('utf8');
+  assert.match(attrs, /^public\/googlec3eaef4e4d6e686f\.html -text$/m);
 });
 
 test('deploy staging copies the shipped registry into deploy/', async () => {
@@ -112,11 +137,13 @@ test('deploy staging copies the shipped registry into deploy/', async () => {
   execFileSync(process.execPath, ['scripts/stage-deploy.mjs'], { cwd: root, encoding: 'utf8' });
   assert.deepEqual(fs.readdirSync(path.join(root, 'deploy')).sort(), [...names].sort());
   for (const file of shippedFiles) {
-    assert.equal(
-      read(path.join('deploy', file.name)).equals(read(file.source)),
-      true,
-      file.name
-    );
+    const staged = read(path.join('deploy', file.name));
+    assert.equal(staged.equals(read(file.source)), true, file.name);
+    if (file.name === GSC_FILE) {
+      assert.equal(staged.length, 53);
+      assert.deepEqual(staged, GSC_BODY);
+      assert.equal(crypto.createHash('sha256').update(staged).digest('hex'), GSC_SHA256);
+    }
   }
   const yml = read('.github/workflows/deploy.yml').toString('utf8');
   assert.equal((yml.match(/node scripts\/stage-deploy\.mjs/g) || []).length, 1);
