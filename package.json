@@ -1,6 +1,6 @@
 {
   "name": "ato-sukoshi",
-  "version": "9.4.0",
+  "version": "9.5.0",
   "private": true,
   "description": "子どもの切り替えを助ける、りすとどんぐりのWebタイマー",
   "scripts": {

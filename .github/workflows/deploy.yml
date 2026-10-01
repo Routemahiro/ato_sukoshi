@@ -41,11 +41,9 @@ jobs:
         run: npm run build
 
       - name: Stage deploy artifact
-        run: |
-          mkdir -p deploy
-          cp index.html deploy/
+        run: node scripts/stage-deploy.mjs
 
-      - name: Upload index.html to Xserver FTP (attempt 1)
+      - name: Upload site files to Xserver FTP (attempt 1)
         id: ftp1
         continue-on-error: true
         uses: SamKirkland/FTP-Deploy-Action@v4.3.6
@@ -59,7 +57,7 @@ jobs:
           local-dir: deploy/
           server-dir: ./
 
-      - name: Upload index.html to Xserver FTP (attempt 2)
+      - name: Upload site files to Xserver FTP (attempt 2)
         id: ftp2
         if: steps.ftp1.outcome == 'failure'
         continue-on-error: true
@@ -74,7 +72,7 @@ jobs:
           local-dir: deploy/
           server-dir: ./
 
-      - name: Upload index.html to Xserver FTP (attempt 3)
+      - name: Upload site files to Xserver FTP (attempt 3)
         id: ftp3
         if: steps.ftp1.outcome == 'failure' && steps.ftp2.outcome == 'failure'
         uses: SamKirkland/FTP-Deploy-Action@v4.3.6

@@ -10,7 +10,7 @@
 
 ## GitHub Actions による自動デプロイ
 
-`main` ブランチへの push（および Actions タブからの手動実行）で、ビルド済み `index.html` を Xserver FTP へアップロードします。
+`main` ブランチへの push（および Actions タブからの手動実行）で、ビルド済み `index.html` と、同じ公開ディレクトリに置く `sitemap.xml` およびアイコンを Xserver FTP へアップロードします。
 開発はこのリポジトリで行い、公開先は上記 URL のみです。
 
 ### 初回セットアップ（リポジトリ管理者）
@@ -30,7 +30,12 @@ Secret が未設定の場合、ワークフローは FTP 接続前に失敗し�
 - ホスト: `sv13234.xserver.jp`
 - ユーザー: `ato-sukoshi@geneshokai.com`
 - アップロード先: FTP アカウントのルート（`.`）。アカウントは `/home/xs062352/geneshokai.com/public_html/ato-sukoshi` に chroot 済みのため、ネストした `geneshokai.com` パスは不要です。
-- アップロード対象: リポジトリ直下の配布用 `index.html` のみ（`npm run build` 後）
+- アップロード対象は `scripts/shipped-files.mjs` の一覧です。ワークフローは `deploy/` に集めてから、3回のアップロードが同じ `deploy/` を送ります。
+  - `index.html`（`npm run build` 後）
+  - `sitemap.xml`
+  - `favicon-96.png`
+  - `apple-touch-icon.png`
+  - `favicon.ico`
 
 ### 手動デプロイ
 
