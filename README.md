@@ -51,6 +51,7 @@ npm run dev     # Python 3でローカルサーバーを起動
 ## 公開と注意
 
 公開用ファイルは `index.html` です。公開 URL は https://geneshokai.com/ato-sukoshi/ 。
+同じディレクトリに Search Console の確認ファイル `googlec3eaef4e4d6e686f.html` を置きます。サイトマップには含めません。
 `main` への push で GitHub Actions から Xserver FTP へ自動デプロイします（要 Actions Secrets）。手順は `docs/DEPLOY.md` を参照してください。
 
 画面を開いたまま使います。画面ロック中や別アプリ使用中に必ず鳴るアラームではありません。
