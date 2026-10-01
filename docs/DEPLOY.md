@@ -33,6 +33,7 @@ Secret が未設定の場合、ワークフローは FTP 接続前に失敗し�
 - アップロード対象は `scripts/shipped-files.mjs` の一覧です。ワークフローは `deploy/` に集めてから、3回のアップロードが同じ `deploy/` を送ります。
   - `index.html`（`npm run build` 後）
   - `sitemap.xml`
+  - `googlec3eaef4e4d6e686f.html`（Search Console の確認ファイル。sitemap には載せない）
   - `favicon-96.png`
   - `apple-touch-icon.png`
   - `favicon.ico`

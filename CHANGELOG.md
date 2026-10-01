@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+アプリの版は 9.5.0 のまま。
+
+- Google Search Console の確認ファイル `googlec3eaef4e4d6e686f.html` を同じ公開ディレクトリに置く。sitemap には載せない。
+
 ## 9.5.0
 
 公開ページの検索向けの基本を足した。
