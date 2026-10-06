@@ -153,6 +153,47 @@ test('deploy staging copies the shipped registry into deploy/', async () => {
   assert.equal(yml.includes('cp index.html deploy/'), false);
 });
 
+test('built index.html loads the GA4 gtag once from the single measurement ID', async () => {
+  const id = 'G-MEPGCECS1W';
+  const src = `https://www.googletagmanager.com/gtag/js?id=${id}`;
+  const html = read('index.html').toString('utf8');
+  const scriptTags = html.match(new RegExp(`<script async src="${src.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}"></script>`, 'g')) || [];
+  assert.equal(scriptTags.length, 1);
+  assert.equal((html.match(new RegExp(src.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g')) || []).length, 1);
+  assert.equal((html.match(new RegExp(`gtag\\('config', '${id}'\\)`, 'g')) || []).length, 1);
+  assert.equal(html.includes(`gtag('config', '${id}',`), false);
+  assert.equal(html.includes('allow_google_signals'), false);
+  assert.equal(html.includes('allow_ad_personalization_signals'), false);
+  assert.equal(html.includes('__GA_MEASUREMENT_ID__'), false);
+  assert.ok(html.includes('アクセス解析に Google アナリティクスを使っています'));
+
+  const template = read('src/index.template.html').toString('utf8');
+  assert.equal((template.match(/__GA_MEASUREMENT_ID__/g) || []).length, 2);
+  assert.equal(template.includes(id), false);
+  assert.ok(template.includes('アクセス解析に Google アナリティクスを使っています'));
+
+  const { GA_MEASUREMENT_ID } = await import('../src/ga-config.mjs');
+  assert.equal(GA_MEASUREMENT_ID, id);
+  const config = read('src/ga-config.mjs').toString('utf8');
+  assert.equal((config.match(new RegExp(id, 'g')) || []).length, 1);
+
+  const allow = new Set([
+    'src/ga-config.mjs',
+    'index.html',
+    'tests/seo.test.cjs',
+    'README.md',
+    'AGENTS.md',
+    'CHANGELOG.md'
+  ]);
+  const tracked = execFileSync('git', ['ls-files', '-z'], { cwd: root }).toString('utf8').split('\0').filter(Boolean);
+  const unexpected = [];
+  for (const rel of tracked) {
+    if (!read(rel).includes(Buffer.from(id))) continue;
+    if (!allow.has(rel)) unexpected.push(rel);
+  }
+  assert.deepEqual(unexpected, []);
+});
+
 test('favicon PNG, apple touch icon, and favicon.ico have the expected sizes', () => {
   const png = pngInfo('public/favicon-96.png');
   assert.equal(png.width, 96);

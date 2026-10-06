@@ -1,10 +1,12 @@
 # Changelog
 
-## Unreleased
+## 9.6.0
 
-アプリの版は 9.5.0 のまま。
+アクセス解析を足した。タイマーの動き、画像、音、アニメーションは変えていない。
 
-- Google Search Console の確認ファイル `googlec3eaef4e4d6e686f.html` を同じ公開ディレクトリに置く。sitemap には載せない。
+- オーナーの判断で Google アナリティクス 4 を使う。計測 ID `G-MEPGCECS1W` の定義は `src/ga-config.mjs` の `GA_MEASUREMENT_ID` だけ。
+- ビルドが標準の gtag スニペットを配布版へ入れる。追加の config 引数はない。
+- ページ下部に「アクセス解析に Google アナリティクスを使っています」を足した。
 
 ## 9.5.0
 
@@ -13,6 +15,7 @@
 - canonical は https://geneshokai.com/ato-sukoshi/ 。
 - 同じ公開ディレクトリに sitemap.xml、favicon-96.png、apple-touch-icon.png、favicon.ico を置く。
 - タイマーの動き、表示文言、アニメーションは変えていない。
+- Google Search Console の確認ファイル `googlec3eaef4e4d6e686f.html` を同じ公開ディレクトリに置く。sitemap には載せない。
 
 ## 9.4.0
 

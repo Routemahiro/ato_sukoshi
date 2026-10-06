@@ -2,8 +2,12 @@ import { readFileSync, writeFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { dirname, resolve } from 'node:path';
 import { createHash } from 'node:crypto';
+import { GA_MEASUREMENT_ID } from '../src/ga-config.mjs';
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 let html = readFileSync(resolve(root, 'src/index.template.html'), 'utf8');
+const gaToken = '__GA_MEASUREMENT_ID__';
+if (html.split(gaToken).length !== 3) throw new Error(`Expected exactly two ${gaToken}`);
+html = html.split(gaToken).join(GA_MEASUREMENT_ID);
 for (const [token, file] of Object.entries({
   '__STYLES__': 'styles.css', '__TIMER_CORE__': 'timer-core.js',
   '__SNACK_CORE__': 'snack-core.js', '__ASSETS__': 'assets.js',
