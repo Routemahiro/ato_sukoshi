@@ -48,6 +48,20 @@ npm run dev     # Python 3でローカルサーバーを起動
 - `validation/`：取り込み時の同一性と検証記録
 - `AGENTS.md`：今後AIに編集を任せる際に維持する仕様
 
+## アクセス解析
+
+オーナーの判断で、Google アナリティクス 4 を使います。計測 ID は `G-MEPGCECS1W` です。https://geneshokai.com 全体のプロパティなので、同じドメインの他の道具でもこの ID を使います。
+
+定義は `src/ga-config.mjs` の `GA_MEASUREMENT_ID` だけです。`src/index.template.html` の `<head>` には標準の gtag スニペットを置き、測定 ID の2箇所だけ `__GA_MEASUREMENT_ID__` にしてあります。`scripts/build.mjs` が、そのトークンがちょうど2つあることを確認してから定数の値へ置き換えます。配布版に入るのは gtag スクリプト1つと `gtag('config', …)` 1つだけで、追加の config 引数はありません。
+
+他の geneshokai.com の道具へ持っていくときは、次の3つをコピーします。
+
+1. `src/ga-config.mjs`（ID は書き換えない）
+2. `<head>` へ、測定 ID の位置だけ `__GA_MEASUREMENT_ID__` にした標準の gtag スニペット
+3. ビルドで、そのトークン2つを `GA_MEASUREMENT_ID` に置き換える処理
+
+ページのいちばん下には「アクセス解析に Google アナリティクスを使っています」と出します。
+
 ## 公開と注意
 
 公開用ファイルは `index.html` です。公開 URL は https://geneshokai.com/ato-sukoshi/ 。
