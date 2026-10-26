@@ -13,15 +13,16 @@ function at(source, needle) {
   return index;
 }
 
-test('release version is 9.6.0', () => {
-  assert.ok(html.includes('content="9.6.0"'));
-  assert.equal(html.includes('content="9.5.0"'), false);
+test('release version is 9.7.0', () => {
+  assert.ok(html.includes('content="9.7.0"'));
+  assert.equal(html.includes('content="9.6.0"'), false);
   const pkg = JSON.parse(fs.readFileSync(path.join(root, 'package.json'), 'utf8'));
-  assert.equal(pkg.version, '9.6.0');
+  assert.equal(pkg.version, '9.7.0');
   const readme = fs.readFileSync(path.join(root, 'README.md'), 'utf8');
-  assert.match(readme, /\*\*v9\.6\.0です。/);
-  assert.equal(readme.includes('v9.5.0'), false);
+  assert.match(readme, /\*\*v9\.7\.0です。/);
+  assert.equal(readme.includes('v9.6.0'), false);
   const notes = fs.readFileSync(path.join(root, 'CHANGELOG.md'), 'utf8');
+  assert.ok(notes.includes('## 9.7.0'));
   assert.ok(notes.includes('## 9.6.0'));
   assert.equal(notes.includes('アプリの版は 9.5.0 のまま'), false);
   assert.ok(notes.includes('## 9.5.0'));
