@@ -3,7 +3,7 @@
 子どもの「あとすこし」を、りすとどんぐりで見える形にするWebタイマーです。
 親子で終わりの時間と次の行動を共有するための小さな道具です。
 
-**v9.7.0です。食べる時の効果音を低めの「もぐもぐ」に変えました。アニメーションのコマと周期は変えていません。**
+**v9.8.0です。オフラインでも使える PWA（ホーム画面への追加）に対応しました。タイマーの動き・画像・音・アニメーションは変えていません。**
 
 ## 使う
 
@@ -40,7 +40,7 @@ npm run dev     # Python 3でローカルサーバーを起動
 
 ## 構成
 
-- `index.html`：そのまま開ける・配置できるv9.7.0
+- `index.html`：そのまま開ける・配置できる v9.8.0（PWA 用に `manifest.webmanifest` と `sw.js` を同じ公開ディレクトリに置く）
 - `src/`：編集用HTML・CSS・JavaScript・内蔵素材
 - `scripts/`：ビルドと素材書き出し、v8取り込み用スクリプト
 - `tests/`：自動検証
@@ -67,6 +67,24 @@ npm run dev     # Python 3でローカルサーバーを起動
 公開用ファイルは `index.html` です。公開 URL は https://geneshokai.com/ato-sukoshi/ 。
 同じディレクトリに Search Console の確認ファイル `googlec3eaef4e4d6e686f.html` を置きます。サイトマップには含めません。
 `main` への push で GitHub Actions から Xserver FTP へ自動デプロイします（要 Actions Secrets）。手順は `docs/DEPLOY.md` を参照してください。
+
+### 手動デプロイ（PC の fallback スクリプト）
+
+`C:\Users\aaa_a\ato-sukoshi-deploy\ato-deploy.cmd` は従来 `index.html` のみ取得していました。**PWA 対応後は次のファイルも同じ公開ディレクトリへアップロードしてください**（`npm run build` 後の内容）。
+
+- `index.html`
+- `manifest.webmanifest`
+- `sw.js`
+- `sitemap.xml`
+- `googlec3eaef4e4d6e686f.html`
+- `favicon.ico`
+- `favicon-96.png`
+- `apple-touch-icon.png`
+- `icon-192.png`
+- `icon-512.png`
+- `icon-512-maskable.png`
+
+GitHub Actions では `scripts/shipped-files.mjs` の一覧が `deploy/` に集約され、FTP へ送られます。
 
 画面を開いたまま使います。画面ロック中や別アプリ使用中に必ず鳴るアラームではありません。
 音量・自動再生・自動消灯防止は端末やブラウザの条件に影響されます。

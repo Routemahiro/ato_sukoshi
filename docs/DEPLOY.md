@@ -32,11 +32,16 @@ Secret が未設定の場合、ワークフローは FTP 接続前に失敗し�
 - アップロード先: FTP アカウントのルート（`.`）。アカウントは `/home/xs062352/geneshokai.com/public_html/ato-sukoshi` に chroot 済みのため、ネストした `geneshokai.com` パスは不要です。
 - アップロード対象は `scripts/shipped-files.mjs` の一覧です。ワークフローは `deploy/` に集めてから、3回のアップロードが同じ `deploy/` を送ります。
   - `index.html`（`npm run build` 後）
+  - `manifest.webmanifest`（`npm run build` 後）
+  - `sw.js`（`npm run build` 後）
   - `sitemap.xml`
   - `googlec3eaef4e4d6e686f.html`（Search Console の確認ファイル。sitemap には載せない）
   - `favicon-96.png`
   - `apple-touch-icon.png`
   - `favicon.ico`
+  - `icon-192.png`
+  - `icon-512.png`
+  - `icon-512-maskable.png`
 
 ### 手動デプロイ
 
@@ -45,4 +50,20 @@ Actions → **Deploy to Xserver FTP** → **Run workflow** → ブランチ `mai
 ## 公開前の確認
 
 公開時には、実際の HTTPS の URL と iPhone/Android 実機で画像、音、消灯、20秒おためし、長押し、終了後の直接操作、設定保存を確認してください。
-この v8 に Service Worker は組み込まれていません。HTML ファイルの保存利用と PWA インストールは別です。
+v9.8.0 以降、Service Worker と Web App Manifest により PWA としてインストール・オフライン利用できます。初回オンライン訪問後、アプリシェルがキャッシュされます。
+
+### PC 手動デプロイ（fallback）
+
+`C:\Users\aaa_a\ato-sukoshi-deploy\ato-deploy.cmd` が `index.html` だけを取得している場合、PWA 公開のため次も同じ FTP ディレクトリへアップロードしてください（ビルド後のリポジトリ／`deploy/` と同じ内容）。
+
+1. `index.html`
+2. `manifest.webmanifest`
+3. `sw.js`
+4. `sitemap.xml`
+5. `googlec3eaef4e4d6e686f.html`
+6. `favicon.ico`
+7. `favicon-96.png`
+8. `apple-touch-icon.png`
+9. `icon-192.png`
+10. `icon-512.png`
+11. `icon-512-maskable.png`

@@ -18,3 +18,5 @@
 - 元画像を無圧縮で二重に埋め込む等、HTMLが巨大化する変更を避ける。
 - 公開URLでの確認、実機確認、HTML直接読み込みの確認を区別して記録する。
 - 公開先、課金、ドメイン、リポジトリ公開範囲は依頼なしに変更しない。
+- PWA：`src/manifest.webmanifest.template.json` と `src/sw.template.js` を編集し、`scripts/build.mjs` が `manifest.webmanifest` と `sw.js` を生成する。`index.html` は手編集しない。Service Worker のキャッシュ名は `package.json` の版（`__APP_VERSION__`）に紐づける。外部解析は gtag のみ（SW は googletagmanager / google-analytics へ介入しない）。
+- デプロイ対象は `scripts/shipped-files.mjs` が正。GitHub Actions FTP に加え、手動の `C:\Users\aaa_a\ato-sukoshi-deploy\ato-deploy.cmd` でも **少なくとも** `index.html`、`manifest.webmanifest`、`sw.js`、および `shipped-files.mjs` に列挙された公開用アイコン・sitemap・Search Console 確認ファイルを同じディレクトリへ上げる。

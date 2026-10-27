@@ -7,3 +7,6 @@ __pycache__/
 .env.*
 artifacts/
 assets-export/
+deploy/
+.puppeteer-core-test/
+tests/pwa-headless-run.cjs
