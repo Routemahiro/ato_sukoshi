@@ -16,10 +16,12 @@
 <meta name="referrer" content="no-referrer">
 <title>あとすこし — おしまいが見えるタイマー</title>
 <link rel="canonical" href="https://geneshokai.com/ato-sukoshi/">
+<link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" type="image/x-icon" href="favicon.ico" sizes="16x16 32x32">
 <link rel="icon" type="image/png" sizes="96x96" href="favicon-96.png">
+<link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
-<meta name="application-version" content="9.7.0">
+<meta name="application-version" content="__APP_VERSION__">
 
 <style>__STYLES__</style>
 </head>
@@ -257,6 +259,13 @@
 <script>__ASSETS__</script>
 <script>__STAGE_MODEL__</script>
 <script>__APP__</script>
+<script>
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('sw.js', { scope: './' }).catch(() => {});
+  });
+}
+</script>
 
 </body>
 </html>
