@@ -5,7 +5,7 @@ import { shippedFiles } from './shipped-files.mjs';
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const dest = resolve(root, 'deploy');
-rmSync(dest, { recursive: true, force: true });
+rmSync(dest, { recursive: true, force: true, maxRetries: 5, retryDelay: 30 });
 mkdirSync(dest);
 for (const file of shippedFiles) {
   copyFileSync(resolve(root, file.source), resolve(dest, file.name));

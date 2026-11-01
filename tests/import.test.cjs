@@ -8,7 +8,7 @@ test('distribution matches editable sources',()=>cp.execFileSync(process.execPat
 test('all JavaScript sources parse',()=>{for(const f of ['timer-core.js','snack-core.js','assets.js','stage-model.js','app.js'])new vm.Script(read('src/'+f));});
 test('no duplicate HTML ids',()=>{const ids=[...read('index.html').matchAll(/\bid="([^"]+)"/g)].map(m=>m[1]);assert.equal(ids.length,new Set(ids).size);});
 test('embedded assets are complete data URLs',()=>{const s={window:{}};vm.runInNewContext(read('src/assets.js'),s,{timeout:2000});const a=s.window.TimerAssets;assert.ok(Object.keys(a).length>=33);for(const [name,url]of Object.entries(a)){const m=/^data:([^;]+);base64,([A-Za-z0-9+/=]+)$/.exec(url);assert.ok(m,name);assert.ok(Buffer.from(m[2],'base64').length>50,name);}assert.equal(a['chew-8.webp'],a['squirrel-ready.webp']);assert.ok(a['apple.svg']);assert.ok(a['elephant-ready.webp']);for(let i=0;i<9;i++){const name='elephant-chew-'+i+'.webp';assert.ok(a[name]);assert.deepEqual(Buffer.from(a[name].slice(a[name].indexOf(',')+1),'base64'),fs.readFileSync(path.join(root,'ato-sukoshi-assets/elephant/upload',name)));}assert.equal(new Set(Array.from({length:9},(_,i)=>a['elephant-chew-'+i+'.webp'])).size,9);for(const k of ['tidy','meal','bath','out','brush','sleep']){assert.ok(a['next-'+k+'.webp']);assert.ok(a['elephant-next-'+k+'.webp']);}});
-test('finish scenes switch by character in app source',()=>{const js=read('src/app.js');assert.ok(js.includes('nextScene'));assert.ok(js.includes('elephant-next-'));assert.ok(js.includes('SCENE_ALT[ch.id]'));assert.ok(js.includes('sel=choices()'));assert.ok(js.includes('ch=character()'));assert.ok(js.includes('片付けるぞうさん'));assert.ok(js.includes('片付けるねずみさん'));});
+test('finish scenes switch by character in app source',()=>{const js=read('src/app.js');assert.ok(js.includes('nextScene'));assert.ok(js.includes('elephant-next-'));assert.ok(js.includes('SCENE_ALT[ch.id]'));assert.ok(js.includes('sel=choices()'));assert.ok(js.includes('ch=character()'));assert.ok(js.includes('片付けるぞうさん'));assert.ok(js.includes('片付けるねずみさん'));assert.ok(js.includes('片付けるミミズクさん'));});
 test('character cycle arrows replace the companion picker',()=>{const h=read('index.html');assert.ok(h.includes('id="character-prev"'));assert.ok(h.includes('aria-label="まえの なかま"'));assert.ok(h.includes('id="character-next"'));assert.ok(h.includes('aria-label="つぎの なかま"'));assert.equal(h.includes('なかまを えらぶ'),false);assert.equal(h.includes('id="character-choices"'),false);assert.equal(h.includes('character-arrow'),false);assert.ok(h.includes('id="stage-pair"'));assert.ok(h.includes('ねずみさん'));});
 test('mouse assets match the upload files',()=>{
   const s={window:{}};
@@ -36,6 +36,31 @@ test('mouse theme is registered beside elephant',()=>{
   for(const alt of ['おもちゃを片付けるねずみさん','ごはんを食べるねずみさん','おふろに入るねずみさん','リュックを背負って出かけるねずみさん','歯みがきするねずみさん','おふとんで眠るねずみさん'])assert.ok(js.includes(alt),alt);
   assert.ok(js.includes('land:[.668,.542]'));
   assert.ok(js.includes('character().land||[.846,.612]'));
+});
+test('owl assets match the upload files',()=>{
+  const s={window:{}};
+  vm.runInNewContext(read('src/assets.js'),s,{timeout:2000});
+  const a=s.window.TimerAssets;
+  const upload=path.join(root,'ato-sukoshi-assets/owl/upload');
+  const next=path.join(root,'ato-sukoshi-assets/owl/next-gen');
+  function bytes(name){const url=a[name];assert.ok(url,name);return Buffer.from(url.slice(url.indexOf(',')+1),'base64');}
+  assert.deepEqual(bytes('chestnut.svg'),fs.readFileSync(path.join(upload,'chestnut.svg')));
+  assert.deepEqual(bytes('owl-ready.webp'),fs.readFileSync(path.join(upload,'owl-ready.webp')));
+  for(let i=0;i<9;i++){const name='owl-chew-'+i+'.webp';assert.deepEqual(bytes(name),fs.readFileSync(path.join(upload,name)));}
+  assert.equal(new Set(Array.from({length:9},(_,i)=>a['owl-chew-'+i+'.webp'])).size,9);
+  for(const k of ['tidy','meal','bath','out','brush','sleep']){const name='owl-next-'+k+'.webp';assert.deepEqual(bytes(name),fs.readFileSync(path.join(next,name)));}
+});
+test('owl theme is registered beside ghost',()=>{
+  const js=read('src/app.js');
+  assert.ok(js.includes("id:'owl'"));
+  assert.ok(js.includes("label:'ミミズクさん'"));
+  assert.ok(js.includes("snack:'栗'"));
+  assert.ok(js.includes("snackIcon:'chestnut.svg'"));
+  assert.ok(js.includes('owl-ready.webp'));
+  assert.ok(js.includes("chew:i=>'owl-chew-'+i+'.webp'"));
+  assert.ok(js.includes("nextScene:k=>'owl-next-'+k+'.webp'"));
+  assert.ok(js.includes('owl-next-'));
+  for(const alt of ['おもちゃを片付けるミミズクさん','ごはんを食べるミミズクさん','おふろに入るミミズクさん','リュックを背負って出かけるミミズクさん','歯みがきするミミズクさん','おふとんで眠るミミズクさん'])assert.ok(js.includes(alt),alt);
 });
 for(const d of [1000,20000,60000,180000,300000,600000,900000,1200000,1800000,2700000,3600000])test(`exact deadline ${d}`,()=>{let now=1000;const t=new Countdown(()=>now);t.start(d);now+=d-1;assert.equal(t.remaining(),1);assert.equal(t.tick(),false);now++;assert.equal(t.tick(),true);assert.equal(t.tick(),false);});
 test('pause freezes remaining time',()=>{let now=1000;const t=new Countdown(()=>now);t.start(20000);now+=4123;t.pause();now+=600000;assert.equal(t.remaining(),15877);t.resume();now+=15877;assert.ok(t.tick());});
