@@ -1,4 +1,4 @@
-const CACHE_VERSION = '9.8.0';
+const CACHE_VERSION = '9.9.0';
 const CACHE_NAME = 'ato-sukoshi-' + CACHE_VERSION;
 const PRECACHE_URLS = [
   './',

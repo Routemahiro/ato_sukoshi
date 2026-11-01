@@ -8,6 +8,7 @@
 - 新しい動物は咀嚼コマ9枚（0〜7の進行と8の笑顔）を `{id}-chew-0.webp` から `{id}-chew-8.webp` の名前で足すだけにする。独自のタイミングは足さない。
 - ねずみさん（mouse、ビスケット）の素材は `ato-sukoshi-assets/mouse/upload/` と `ato-sukoshi-assets/mouse/next-gen/` に置く。
 - おばけさん（ghost、ドーナツ）の素材は `ato-sukoshi-assets/ghost/upload/` と `ato-sukoshi-assets/ghost/next-gen/` に置く。
+- ミミズクさん（owl、栗）の素材は `ato-sukoshi-assets/owl/upload/` と `ato-sukoshi-assets/owl/next-gen/` に置く。
 - おばけさんの食べ終わりのぺろは、依頼された例外で、共有タイムラインは変えずにその中の画像を1枚だけ差し替える。
 - 「あと、どれくらい？」は数字と「分」のシンプルな時間ボタン。ここをチェックボックスに変えない。
 - 表示候補は「音・表示」の中のチェックボックスで管理する。候補の変更だけで今回の時間を変えない。

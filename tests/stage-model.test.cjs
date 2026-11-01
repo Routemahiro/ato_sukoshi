@@ -79,13 +79,15 @@ test('disabling the selected duration selects the nearest one that stays on', ()
   assert.equal(applyVisiblePresets(600, [600]).seconds, 600);
 });
 
-test('character cycle wraps squirrel, elephant, mouse, ghost', () => {
-  assert.deepEqual([...CHARACTER_ORDER], ['squirrel', 'elephant', 'mouse', 'ghost']);
+test('character cycle wraps squirrel, elephant, mouse, ghost, owl', () => {
+  assert.deepEqual([...CHARACTER_ORDER], ['squirrel', 'elephant', 'mouse', 'ghost', 'owl']);
   assert.equal(cycleCharacter('squirrel', 1), 'elephant');
   assert.equal(cycleCharacter('elephant', 1), 'mouse');
   assert.equal(cycleCharacter('mouse', 1), 'ghost');
-  assert.equal(cycleCharacter('ghost', 1), 'squirrel');
-  assert.equal(cycleCharacter('squirrel', -1), 'ghost');
+  assert.equal(cycleCharacter('ghost', 1), 'owl');
+  assert.equal(cycleCharacter('owl', 1), 'squirrel');
+  assert.equal(cycleCharacter('squirrel', -1), 'owl');
+  assert.equal(cycleCharacter('owl', -1), 'ghost');
   assert.equal(cycleCharacter('ghost', -1), 'mouse');
   assert.equal(cycleCharacter('mouse', -1), 'elephant');
   let id = 'squirrel';
@@ -105,7 +107,7 @@ test('next slides left and previous slides right within the ease-out window', ()
   assert.equal(next.easing, 'ease-out');
   assert.ok(next.durationMs >= 250 && next.durationMs <= 350);
   const prev = characterMotion('squirrel', -1);
-  assert.equal(prev.to, 'ghost');
+  assert.equal(prev.to, 'owl');
   assert.equal(prev.direction, -1);
   assert.equal(characterMotion('mouse', 0).direction, 0);
   assert.equal(characterMotion('mouse', 1.5).direction, 0);
@@ -123,14 +125,14 @@ test('rapid slides commit the latest character and ignore a stale settle', () =>
     seen.push(state.showing);
     assert.equal(state.phase, 'sliding');
   }
-  assert.deepEqual(seen, ['elephant', 'mouse', 'ghost', 'squirrel', 'elephant']);
+  assert.deepEqual(seen, ['elephant', 'mouse', 'ghost', 'owl', 'squirrel']);
   const stale = settleCharacterSlide(state, state.generation - 1);
   assert.equal(stale.action, 'ignore');
   assert.equal(stale.state.phase, 'sliding');
   const settled = settleCharacterSlide(state, state.generation);
   assert.equal(settled.action, 'clear');
   assert.equal(settled.state.phase, 'rest');
-  assert.equal(settled.state.showing, 'elephant');
+  assert.equal(settled.state.showing, 'squirrel');
   assert.equal(settleCharacterSlide(settled.state, settled.state.generation).action, 'ignore');
 });
 
@@ -149,7 +151,7 @@ test('abort snaps to the committed character and drops an in-flight settle', () 
   assert.equal(abortCharacterSlide(snapped.state).action, 'ignore');
   let back = createSlideState('squirrel');
   for (let i = 0; i < 5; i++) back = reduceCharacterSlide(back, -1).state;
-  assert.equal(back.showing, 'ghost');
+  assert.equal(back.showing, 'squirrel');
 });
 
 test('stage gestures share the character slide delta', () => {
@@ -167,7 +169,7 @@ test('stage gestures share the character slide delta', () => {
   const next = classifyStageGesture(-80, 4);
   const prev = classifyStageGesture(80, 4);
   assert.equal(reduceCharacterSlide(createSlideState('squirrel'), next.delta).state.showing, 'elephant');
-  assert.equal(reduceCharacterSlide(createSlideState('ghost'), next.delta).state.showing, 'squirrel');
-  assert.equal(reduceCharacterSlide(createSlideState('squirrel'), prev.delta).state.showing, 'ghost');
+  assert.equal(reduceCharacterSlide(createSlideState('owl'), next.delta).state.showing, 'squirrel');
+  assert.equal(reduceCharacterSlide(createSlideState('squirrel'), prev.delta).state.showing, 'owl');
   assert.equal(reduceCharacterSlide(createSlideState('elephant'), prev.delta).state.showing, 'squirrel');
 });

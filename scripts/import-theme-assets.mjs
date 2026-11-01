@@ -38,6 +38,16 @@ const themes = [
     ],
     nextNames: scenes.map((scene) => `ghost-next-${scene}.webp`),
   },
+  {
+    upload: resolve(root, 'ato-sukoshi-assets/owl/upload'),
+    nextGen: resolve(root, 'ato-sukoshi-assets/owl/next-gen'),
+    uploadNames: [
+      'chestnut.svg',
+      'owl-ready.webp',
+      ...Array.from({ length: 9 }, (_, i) => `owl-chew-${i}.webp`),
+    ],
+    nextNames: scenes.map((scene) => `owl-next-${scene}.webp`),
+  },
 ];
 
 const mime = {
