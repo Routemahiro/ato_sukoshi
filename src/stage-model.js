@@ -6,7 +6,7 @@
   'use strict';
   const PRESET_SECONDS = Object.freeze([60, 180, 300, 600, 900, 1200, 1800, 2700, 3600]);
   const DEFAULT_VISIBLE_PRESETS = Object.freeze([60, 180, 300, 600]);
-  const CHARACTER_ORDER = Object.freeze(['squirrel', 'elephant', 'mouse', 'ghost']);
+  const CHARACTER_ORDER = Object.freeze(['squirrel', 'elephant', 'mouse', 'ghost', 'owl']);
   const NEXT_IDS = Object.freeze(['tidy', 'meal', 'bath', 'out', 'brush', 'sleep']);
   const CURRENT_IDS = Object.freeze(['play', 'video', 'book', 'meal']);
   const PREF_KEY = 'atosukoshi.preferences.v3';
