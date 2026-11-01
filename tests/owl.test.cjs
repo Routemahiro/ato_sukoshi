@@ -5,7 +5,7 @@ const root=path.resolve(__dirname,'..');
 const read=n=>fs.readFileSync(path.join(root,n),'utf8');
 
 const EXPECTED={
-  'chestnut.svg':'8ba087723bba6aeba989a83d58836cb8a926ca937932048ce1747fd96e676ab2',
+  'chestnut.svg':'ad34430723edbd7070b5271863f374bde71edd788e1054dd18161f03cfc8d012',
   'owl-ready.webp':'66da660d472a501ca0720c9c8908eca51d029c6ba12fddcf8e942804e1df50e5',
   'owl-chew-0.webp':'b55006552db643fc9b9bd2a7cd26868d10c181aab498ea48e53c9c1528778d40',
   'owl-chew-1.webp':'0bd740cb1a757f76ef819c5b66874b8bdf81298707f060bd2e584e15c2dedb29',

@@ -13,16 +13,17 @@ function at(source, needle) {
   return index;
 }
 
-test('release version is 9.9.0', () => {
+test('release version is 9.9.1', () => {
   assert.ok(html.includes('content="__APP_VERSION__"'));
   const pkg = JSON.parse(fs.readFileSync(path.join(root, 'package.json'), 'utf8'));
-  assert.equal(pkg.version, '9.9.0');
+  assert.equal(pkg.version, '9.9.1');
   const built = fs.readFileSync(path.join(root, 'index.html'), 'utf8');
-  assert.ok(built.includes('content="9.9.0"'));
+  assert.ok(built.includes('content="9.9.1"'));
   const readme = fs.readFileSync(path.join(root, 'README.md'), 'utf8');
-  assert.match(readme, /\*\*v9\.9\.0です。/);
-  assert.equal(readme.includes('v9.8.0'), false);
+  assert.match(readme, /\*\*v9\.9\.1です。/);
+  assert.equal(readme.includes('v9.9.0'), false);
   const notes = fs.readFileSync(path.join(root, 'CHANGELOG.md'), 'utf8');
+  assert.ok(notes.includes('## 9.9.1'));
   assert.ok(notes.includes('## 9.9.0'));
   assert.ok(notes.includes('## 9.8.0'));
   assert.ok(notes.includes('## 9.6.0'));
