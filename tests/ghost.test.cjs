@@ -131,7 +131,7 @@ test('ghost is registered with doughnut landing and a per-item flourish',()=>{
   assert.equal(g.landSize,.40);
   assert.deepEqual({...g.flourish},{frame:'ghost-lick.webp',holdMs:1200,showMs:800,chance:.5});
   for(const alt of ['おもちゃを片付けるおばけさん','ごはんを食べるおばけさん','おふろに入るおばけさん','リュックを背負って出かけるおばけさん','歯みがきするおばけさん','おふとんで眠るおばけさん'])assert.ok(js.includes(alt),alt);
-  assert.deepEqual(Object.keys(chars),['squirrel','elephant','mouse','ghost']);
+  assert.deepEqual(Object.keys(chars),['squirrel','elephant','mouse','ghost','owl']);
   assert.ok(html.includes('aria-label="まえの なかま"')&&html.includes('aria-label="つぎの なかま"'));
   assert.equal(html.includes('なかまを えらぶ'),false);
   assert.ok(html.includes('id="finish-flourish"'));
@@ -155,7 +155,7 @@ test('other characters have no flourish and share snackState',()=>{
   }
   for(const ms of samples){
     const base=snackState(10000,10000-ms);
-    for(const id of ['squirrel','elephant','mouse','ghost'])assert.deepEqual(snackState(10000,10000-ms,id),base,id+' '+ms);
+    for(const id of ['squirrel','elephant','mouse','ghost','owl'])assert.deepEqual(snackState(10000,10000-ms,id),base,id+' '+ms);
   }
   assert.equal(snackState(20000,1,'ghost').phase,snackState(20000,1,'squirrel').phase);
 });

@@ -15,13 +15,15 @@
     squirrel:{tidy:'おもちゃを片付けるりすさん',meal:'ごはんを食べるりすさん',bath:'おふろに入るりすさん',out:'リュックを背負って出かけるりすさん',brush:'歯みがきするりすさん',sleep:'おふとんで眠るりすさん'},
     elephant:{tidy:'おもちゃを片付けるぞうさん',meal:'ごはんを食べるぞうさん',bath:'おふろに入るぞうさん',out:'リュックを背負って出かけるぞうさん',brush:'歯みがきするぞうさん',sleep:'おふとんで眠るぞうさん'},
     mouse:{tidy:'おもちゃを片付けるねずみさん',meal:'ごはんを食べるねずみさん',bath:'おふろに入るねずみさん',out:'リュックを背負って出かけるねずみさん',brush:'歯みがきするねずみさん',sleep:'おふとんで眠るねずみさん'},
-    ghost:{tidy:'おもちゃを片付けるおばけさん',meal:'ごはんを食べるおばけさん',bath:'おふろに入るおばけさん',out:'リュックを背負って出かけるおばけさん',brush:'歯みがきするおばけさん',sleep:'おふとんで眠るおばけさん'}
+    ghost:{tidy:'おもちゃを片付けるおばけさん',meal:'ごはんを食べるおばけさん',bath:'おふろに入るおばけさん',out:'リュックを背負って出かけるおばけさん',brush:'歯みがきするおばけさん',sleep:'おふとんで眠るおばけさん'},
+    owl:{tidy:'おもちゃを片付けるミミズクさん',meal:'ごはんを食べるミミズクさん',bath:'おふろに入るミミズクさん',out:'リュックを背負って出かけるミミズクさん',brush:'歯みがきするミミズクさん',sleep:'おふとんで眠るミミズクさん'}
   };
   const CHARACTERS=Object.freeze({
     squirrel:{id:'squirrel',label:'りすさん',snack:'どんぐり',ready:'squirrel-ready.webp',chew:i=>'chew-'+i+'.webp',snackIcon:'acorn.svg',nextScene:k=>'next-'+k+'.webp'},
     elephant:{id:'elephant',label:'ぞうさん',snack:'りんご',ready:'elephant-ready.webp',chew:i=>'elephant-chew-'+i+'.webp',snackIcon:'apple.svg',nextScene:k=>'elephant-next-'+k+'.webp'},
     mouse:{id:'mouse',label:'ねずみさん',snack:'ビスケット',ready:'mouse-ready.webp',chew:i=>'mouse-chew-'+i+'.webp',snackIcon:'biscuit.svg',nextScene:k=>'mouse-next-'+k+'.webp',land:[.668,.542]},
-    ghost:{id:'ghost',label:'おばけさん',snack:'ドーナツ',ready:'ghost-ready.webp',chew:i=>'ghost-chew-'+i+'.webp',snackIcon:'doughnut.svg',nextScene:k=>'ghost-next-'+k+'.webp',land:[.514,.509],landSize:.40,flourish:{frame:'ghost-lick.webp',holdMs:1200,showMs:800,chance:.5}}
+    ghost:{id:'ghost',label:'おばけさん',snack:'ドーナツ',ready:'ghost-ready.webp',chew:i=>'ghost-chew-'+i+'.webp',snackIcon:'doughnut.svg',nextScene:k=>'ghost-next-'+k+'.webp',land:[.514,.509],landSize:.40,flourish:{frame:'ghost-lick.webp',holdMs:1200,showMs:800,chance:.5}},
+    owl:{id:'owl',label:'ミミズクさん',snack:'栗',ready:'owl-ready.webp',chew:i=>'owl-chew-'+i+'.webp',snackIcon:'chestnut.svg',nextScene:k=>'owl-next-'+k+'.webp'}
   });
   const own=(obj,key)=>typeof key==='string' && Object.prototype.hasOwnProperty.call(obj,key);
   const timer=new Countdown();
